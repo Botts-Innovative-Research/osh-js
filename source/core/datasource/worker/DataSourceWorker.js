@@ -1,6 +1,7 @@
 import SosGetResultHandler from "../sos/handler/SosGetResult.handler";
 import SosGetFoisHandler from "../sos/handler/SosGetFois.handler";
 import SweApiHandler from "../sweapi/handler/SweApi.handler";
+import ConSysApiHandler from "../consysapi/handler/ConSysApi.handler";
 
 class DataSourceWorker {
     constructor() {
@@ -116,6 +117,8 @@ class DataSourceWorker {
             return new SosGetFoisHandler();
         } else if (properties.type === 'SweApiStream') {
             return new SweApiHandler();
+        } else if (properties.type === 'ConSysApiStream') {
+            return new ConSysApiHandler();
         } else {
             throw Error('Unsupported SOS service Error');
         }
