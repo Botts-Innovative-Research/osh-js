@@ -21,13 +21,13 @@ var samples = [
         url: "datasource-file"
     },
     {
-        name: "DataSource SweApiFetch",
-        description: "Display GPS data using the SweApiFetch datasource",
+        name: "DataSource Connected Systems",
+        description: "Display GPS data using the ConSysApi datasource",
         url: "datasource-sweapifetch"
     },
     {
-        name: "DataSource SweApiFetch Json",
-        description: "Display data using the SweApiFetch datasource in JSON format",
+        name: "DataSource Connected Systems Json",
+        description: "Display data using the ConSysApi datasource in JSON format",
         url: "datasource-swejson"
     },
     {
@@ -56,8 +56,8 @@ var samples = [
         url: "multi-datasources-synchronized"
     },
     {
-        name: 'Switch between Replay & realtime using SOS or SWEAPI service',
-        description: 'Switch between Replay & realtime using SOS or SWEAPI service',
+        name: 'Switch between Replay & realtime using SOS or Connected Systems API service',
+        description: 'Switch between Replay & realtime using SOS or Connected Systems API service',
         url: 'switch-realtime-batch'
     },
     {

@@ -1,9 +1,9 @@
 import {EventType} from 'osh-js/core/event/EventType';
 // #region snippet_datasource_sweapifetch
-import SweApiFetch from "osh-js/core/datasource/sweapi/SweApi.datasource.js";
+import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource.js";
 import {Mode} from "osh-js/core/datasource/Mode";
 
-let gpsDataSource = new SweApiFetch("android-GPS", {
+let gpsDataSource = new ConSysApi("android-GPS", {
   endpointUrl: 'api.georobotix.io/ogc/t18/api',
   resource: '/datastreams/o7pce3e60s0ie/observations',
   tls: true,

@@ -4,7 +4,7 @@ import CurveLayer from 'osh-js/core/ui/layer/CurveLayer.js';
 import SosGetResult from 'osh-js/core/datasource/sos/SosGetResult.datasource.js';
 import {Mode} from 'osh-js/core/datasource/Mode';
 import DataSynchronizer from "../../../source/core/timesync/DataSynchronizer";
-import SweApiDatasource from "../../../source/core/datasource/sweapi/SweApi.datasource";
+import ConSysApi from "../../../source/core/datasource/consysapi/ConSysApi.datasource";
 import {EventType} from "../../../source/core/event/EventType";
 
 function getRandomArbitrary(min, max) {
@@ -165,7 +165,7 @@ listBoxElement.onchange = (event) => {
     let value = event.target.value;
     if(value === 'sos') {
         startSosExample();
-    } else if(value === 'sweapi') {
+    } else if(value === 'consysapi') {
         startSweApiExample()
     }
 }
