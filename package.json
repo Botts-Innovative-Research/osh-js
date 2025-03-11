@@ -1,6 +1,6 @@
 {
-  "name": "osh-js",
-  "version": "2.2.0",
+  "name": "@osh-branches/osh-js",
+  "version": "2.2.0-mcs+0001",
   "description": "OSH javascript Toolkit",
   "main": "core/OSH.js",
   "repository": {
@@ -23,6 +23,9 @@
     "url": "https://github.com/opensensorhub/osh-js/issues"
   },
   "homepage": "https://github.com/opensensorhub/osh-js#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "webpack --config webpack.config.js --mode production",
     "documentation": "yarn  --cwd jsdoc/ clean && yarn  --cwd jsdoc/ install && yarn  --cwd jsdoc/  all",
