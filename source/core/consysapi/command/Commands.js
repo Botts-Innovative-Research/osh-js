@@ -16,6 +16,8 @@
 
 import ConSysApiFetchCommandParser from "../../parsers/consysapi/collection/ConSysApiFetchCommand.parser";
 import ConnectedSystemsApi from "../ConnectedSystemsApi";
+import Collection from "../Collection";
+import API from "../routes.conf";
 import CommandFilter from "./CommandFilter";
 
 class Commands extends ConnectedSystemsApi {
@@ -41,7 +43,7 @@ class Commands extends ConnectedSystemsApi {
      */
     async searchCommands(commandFilter = new CommandFilter(), pageSize= 10) {
         return new Collection(
-            this.baseUrl + API.commands.search,
+            this.baseUrl() + API.commands.search,
             commandFilter,
             pageSize,
             this.conSysApiCommandParser

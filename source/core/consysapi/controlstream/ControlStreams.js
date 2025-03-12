@@ -17,6 +17,7 @@
 import ConSysApiFetchControlStreamParser from "../../parsers/consysapi/collection/ConSysApiFetchControlStream.parser";
 import Collection from "../Collection";
 import ConnectedSystemsApi from "../ConnectedSystemsApi";
+import API from "../routes.conf";
 import ControlStreamFilter from "./ControlStreamFilter";
 
 class ControlStreams extends ConnectedSystemsApi {
@@ -42,7 +43,7 @@ class ControlStreams extends ConnectedSystemsApi {
      */
     async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
         return new Collection(
-            this.baseUrl + API.controlstreams.search,
+            this.baseUrl() + API.controlstreams.search,
             controlStreamFilter,
             pageSize,
             this.conSysApiControlStreamParser
