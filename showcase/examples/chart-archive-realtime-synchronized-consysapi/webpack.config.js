@@ -8,9 +8,9 @@ const path = require('path');
 
 // Now, using the cesiumConfig in your real configuration
 const config = {
-  entry: path.resolve(__dirname,'chart-archive-realtime-synchronized-sweapi.js'),
+  entry: path.resolve(__dirname,'chart-archive-realtime-synchronized-consysapi.js'),
   output: {
-    filename: 'bundle.chart-archive-realtime-synchronized-sweapi.js',
+    filename: 'bundle.chart-archive-realtime-synchronized-consysapi.js',
     path: path.resolve(__dirname, 'dist'),
   },
 
@@ -85,15 +85,15 @@ const config = {
     compress: true,
     port: 9000,
     hot: true,
-    index: 'chart-archive-realtime-synchronized-sweapi.html',
+    index: 'chart-archive-realtime-synchronized-consysapi.html',
     https:true
   },
   plugins: [
     new VueLoaderPlugin(),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'chart-archive-realtime-synchronized-sweapi.html'),
-      filename: './chart-archive-realtime-synchronized-sweapi.html',
+      template: path.resolve(__dirname, 'chart-archive-realtime-synchronized-consysapi.html'),
+      filename: './chart-archive-realtime-synchronized-consysapi.html',
       favicon: path.resolve(__dirname,'favicon.ico')
     }),
     new DefinePlugin({

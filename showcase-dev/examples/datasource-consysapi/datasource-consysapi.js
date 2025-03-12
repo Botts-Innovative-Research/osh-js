@@ -1,5 +1,5 @@
 import {EventType} from 'osh-js/core/event/EventType';
-// #region snippet_datasource_sweapifetch
+// #region snippet_datasource_consysapi
 import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource.js";
 import {Mode} from "osh-js/core/datasource/Mode";
 
@@ -15,7 +15,7 @@ let gpsDataSource = new ConSysApi("android-GPS", {
   mode : Mode.REAL_TIME
 });
 
-// #endregion snippet_datasource_sweapifetch
+// #endregion snippet_datasource_consysapi
 
 gpsDataSource.subscribe(async (message) => {
   let dataEvent;

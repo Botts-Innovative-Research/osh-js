@@ -8,10 +8,10 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname,'./datasource-sweapifetch.js'),
+    entry: path.resolve(__dirname,'./datasource-consysapi.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
-        filename: 'bundle.datasource.sweapifetch.js',
+        filename: 'bundle.datasource.consysapi.js',
         path: path.resolve(__dirname, 'dist')
     },
     // Tell Webpack which directories to look in to resolve import statements.
@@ -53,7 +53,7 @@ module.exports = {
         compress: true,
         port: 9000,
         hot: true,
-        index: 'datasource-sweapifetch.html',
+        index: 'datasource-consysapi.html',
         https:true
     },
     devtool: 'source-map',
@@ -74,8 +74,8 @@ module.exports = {
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
         new HtmlWebpackPlugin({
-            filename: "datasource-sweapifetch.html",
-            template: path.resolve(__dirname, 'datasource-sweapifetch.html')
+            filename: "datasource-consysapi.html",
+            template: path.resolve(__dirname, 'datasource-consysapi.html')
         }),
         new CopyWebpackPlugin([
             { from: path.resolve(__dirname,'data'), to: 'data'}

@@ -1,5 +1,5 @@
 // create data source for Android phone GPS
-import SweApiFetch from 'osh-js/core/datasource/sweapi/SweApi.datasource.js';
+import ConSysApi from 'osh-js/core/datasource/consysapi/ConSysApi.datasource.js';
 import PointMarkerLayer from 'osh-js/core/ui/layer/PointMarkerLayer.js';
 import LeafletView from 'osh-js/core/ui/view/map/LeafletView.js';
 import ChartJsView from 'osh-js/core/ui/view/chart/ChartJsView';
@@ -15,7 +15,7 @@ const mqttProps = {
     password: 'WR6zlso9h#'
 };
 
-let gpsDataSource = new SweApiFetch("android-GPS", {
+let gpsDataSource = new ConSysApi("android-GPS", {
     endpointUrl:  'api.georobotix.io/ogc/t18/api',
     resource: '/datastreams/rbnag2hrc04mm/observations',
     tls: true,
@@ -24,7 +24,7 @@ let gpsDataSource = new SweApiFetch("android-GPS", {
     mode: Mode.REAL_TIME
 });
 
-const isaDataSource = new SweApiFetch("ISA-bio-sensor", {
+const isaDataSource = new ConSysApi("ISA-bio-sensor", {
     endpointUrl:  'api.georobotix.io/ogc/t18/api',
     resource: '/datastreams/b4runsn23q66o/observations',
     tls: true,

@@ -77,7 +77,7 @@ module.exports = [{
 let directories = [
     'datasource-audio',
     'datasource-file',
-    'datasource-sweapifetch',
+    'datasource-consysapi',
     'datasource-swejson',
     'datasource-video',
     'datasources-synchronized',

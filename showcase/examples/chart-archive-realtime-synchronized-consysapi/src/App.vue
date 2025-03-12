@@ -18,7 +18,7 @@ import TimeController from 'osh-js/vue/components/TimeController.vue';
 
 import DataSynchronizer from 'osh-js/core/timesync/DataSynchronizer';
 import {Mode} from 'osh-js/core/datasource/Mode';
-import SweApiDatasource from "osh-js/core/datasource/sweapi/SweApi.datasource";
+import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource.js";
 
 export default {
   components: {
@@ -55,7 +55,7 @@ export default {
       prefetchBatchSize: 250
     };
 
-    const chartDataSource1 = new SweApiDatasource('Simulated Weather Sensor - weather', {
+    const chartDataSource1 = new ConSysApi('Simulated Weather Sensor - weather', {
       ...commonDatasourceOpts,
       resource: '/datastreams/0tsop3f16nvp8/observations',
       responseFormat: 'application/swe+json',

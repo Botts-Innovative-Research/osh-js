@@ -19,7 +19,7 @@
 import TimeController from 'osh-js/vue/components/TimeController.vue';
 import FFMPEGView from 'osh-js/core/ui/view/video/FFMPEGView';
 import DataSynchronizer from 'osh-js/core/timesync/DataSynchronizer';
-import SweApiFetch from 'osh-js/core/datasource/sweapi/SweApi.datasource.js';
+import ConSysApi from 'osh-js/core/datasource/consysapi/ConSysApi.datasource.js';
 import {Mode} from 'osh-js/core/datasource/Mode';
 import VideoView from 'osh-js/core/ui/view/video/VideoView';
 import VideoDataLayer from 'osh-js/core/ui/layer/VideoDataLayer';
@@ -49,19 +49,19 @@ export default {
       prefetchBatchSize: 250
     };
 
-    const dataSource0 = new SweApiFetch("drone-Video", {
+    const dataSource0 = new ConSysApi("drone-Video", {
       ...opts
     });
 
-    const dataSource1 = new SweApiFetch("drone-Video1", {
+    const dataSource1 = new ConSysApi("drone-Video1", {
       ...opts
     });
 
-    const dataSource2 = new SweApiFetch("drone-Video2", {
+    const dataSource2 = new ConSysApi("drone-Video2", {
       ...opts
     });
 
-    const dataSource3 = new SweApiFetch("drone-Video3", {
+    const dataSource3 = new ConSysApi("drone-Video3", {
       ...opts
     });
 

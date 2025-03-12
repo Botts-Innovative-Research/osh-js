@@ -1,7 +1,7 @@
-import Systems from "osh-js/core/sweapi/system/Systems";
+import Systems from "osh-js/core/consysapi/system/Systems";
 import {EventType} from "osh-js/core/event/EventType";
-import ControlFilter from "osh-js/core/sweapi/control/ControlFilter";
-import SweApiFetch from "osh-js/core/datasource/sweapi/SweApi.datasource";
+import ControlStreamFilter from "osh-js/core/consysapi/control/ControlStreamFilter";
+import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource";
 import PointMarkerLayer from "osh-js/core/ui/layer/PointMarkerLayer";
 import LeafletView from "osh-js/core/ui/view/map/LeafletView";
 import PolylineLayer from "osh-js/core/ui/layer/PolylineLayer";
@@ -22,7 +22,7 @@ const mqttProps = {
     password: password
 };
 
-let gpsDataSource = new SweApiFetch("supersonic drone GPS", {
+let gpsDataSource = new ConSysApi("supersonic drone GPS", {
     resource: `/api/datastreams/${posDsId}/observations`,
     endpointUrl: 'api.georobotix.io/ogc/t18/api',
     protocol: 'ws',

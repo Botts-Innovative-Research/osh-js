@@ -21,13 +21,13 @@ var samples = [
         url: "datasource-file"
     },
     {
-        name: "DataSource Connected Systems",
+        name: "Connected Systems DataSource",
         description: "Display GPS data using the ConSysApi datasource",
-        url: "datasource-sweapifetch"
+        url: "datasource-consysapi"
     },
     {
-        name: "DataSource Connected Systems Json",
-        description: "Display data using the ConSysApi datasource in JSON format",
+        name: "SOS DataSource Swe Json",
+        description: "Display data using the SOS datasource in SWE JSON format",
         url: "datasource-swejson"
     },
     {
