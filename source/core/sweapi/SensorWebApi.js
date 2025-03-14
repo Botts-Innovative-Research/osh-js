@@ -87,8 +87,8 @@ class SensorWebApi {
         const url = networkProperties.streamProtocol + tls + '://' + endpoint;
 
         if(networkProperties.streamProtocol === 'mqtt') {
-            // return new MqttConnector(url, networkProperties);
-            return new MqttTopicConnector(networkProperties.mqttOpts.bcId, networkProperties);
+            return new MqttConnector(url, networkProperties);
+            // return new MqttTopicConnector(networkProperties.mqttOpts.bcId, networkProperties);
         } else if(networkProperties.streamProtocol === 'ws') {
             return new WebSocketConnector(url);
         }
