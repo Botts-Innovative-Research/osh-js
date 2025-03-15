@@ -87,8 +87,7 @@ let directories = [
     'switch-realtime-batch',
     'videodata-with-control-vuejs-synchronized',
     'datasynchronizer-dynamic-add-remove-realtime',
-    'datasynchronizer-dynamic-add-remove-replay',
-    'datasource-geojson'
+    'datasynchronizer-dynamic-add-remove-replay'
 ];
 
 const plug = {};
