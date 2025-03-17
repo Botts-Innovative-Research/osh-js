@@ -1,10 +1,10 @@
 import Systems from "osh-js/core/consysapi/system/Systems";
 import {EventType} from "osh-js/core/event/EventType";
-import ControlStreamFilter from "osh-js/core/consysapi/control/ControlStreamFilter";
-import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource";
+import ConSysApi from "osh-js/core/datasource/consysapi/ConSysApi.datasource.js";
 import PointMarkerLayer from "osh-js/core/ui/layer/PointMarkerLayer";
 import LeafletView from "osh-js/core/ui/view/map/LeafletView";
 import PolylineLayer from "osh-js/core/ui/layer/PolylineLayer";
+import ControlStreamFilter from "../../../source/core/consysapi/controlstream/ControlStreamFilter";
 
 var prevTime = 0;
 
@@ -101,9 +101,9 @@ async function startListening() {
     gpsDataSource.connect();
 
     const system = await systems.getSystemById(systemId);
-    const control = await system.getControlById(cmdStreamId);
+    const control = await system.getControlStreamById(cmdStreamId);
 
-    control.streamStatus(new ControlFilter({}), async (message) =>{
+    control.streamStatus(new ControlStreamFilter({}), async (message) =>{
         textCommandElt.innerHTML = "";
         const status = message;
         textStatusElt.innerHTML = JSON.stringify(status, null, 2);
