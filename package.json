@@ -32,7 +32,6 @@
     "copy-sources-package": "shx cp -rf source/ build/osh-js/source",
     "prepare-package": "shx mkdir -p build/osh-js",
     "build-package": "yarn clean-package && yarn prepare-package && yarn copy-sources-package && yarn transpile-package && node config/prepare-package",
-
     "transpile-lib": "tsc --project config/tsconfig-lib.json && shx cp -rf source/vue dist/vue && shx cp -fr source/core/resources dist/core/resources && shx cp -fr source/ext/resources dist/ext/resources",
     "copy-sources-lib": "shx cp -rf source/ dist",
     "prepare-lib": "rm -fr dist; shx mkdir -p dist",
