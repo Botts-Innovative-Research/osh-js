@@ -5,6 +5,8 @@ import SosGetResult from 'osh-js/core/datasource/sos/SosGetResult.datasource.js'
 import SweApi from "../../../source/core/datasource/sweapi/SweApi.datasource";
 import {Mode} from 'osh-js/core/datasource/Mode';
 import ConSysApi from 'osh-js/core/datasource/consysapi/ConSysApi.datasource.js';
+import {EventType} from "osh-js/core/event/EventType";
+
 //import DataSynchronizer from "osh-js/core/timesync/DataSynchronizer";
 
 //const REPLAY_SPEED = 1.0;
@@ -14,16 +16,15 @@ function getRandomArbitrary(min, max) {
 }
 
 let chartDataSource = new ConSysApi("weather", {
-    endpointUrl: "api.georobotix.io/ogc/demo1/api",
-    startTime: "2015-08-02T20:00:00Z",
-    endTime: "now",
+    endpointUrl: 'api.georobotix.io/ogc/t18/api',
+    resource: '/datastreams/0tsop3f16nvp8/observations',
     tls: true,
-    mode: Mode.REAL_TIME,
-    //replaySpeed: REPLAY_SPEED,
-    prefetchBatchDuration: 10000,
-    prefetchBatchSize: 250,
-    resource: '/datastreams/vadu2mqtbnrsa/observations',
-    responseFormat: 'application/swe+binary',
+    protocol: 'mqtt',
+    mqttOpts: {
+        prefix: '/api',
+        endpointUrl: 'api.georobotix.io:443/ogc/t18'
+    },
+    mode : Mode.REAL_TIME
 });
 
 // #region snippet_curve_layer
