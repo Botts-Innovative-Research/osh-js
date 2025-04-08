@@ -5,7 +5,7 @@
     <TimeController
         :dataSynchronizer="dataSynchronizer"
         @event='onControlEvent'
-        :skipTimeStep="'60s'"
+        :skipTimeStep="'60s'" 
         :trackRealtime=true
         v-if="dataSynchronizer"
     ></TimeController>
@@ -73,7 +73,7 @@ export default {
              getValues: (rec, timestamp) => {
                return {
                  x: rec.timestamp,
-                 y: rec.temperature
+                 y: rec.windSpeed
                }
              },
              lineColor: 'rgba(0,220,204,0.5)',
