@@ -108,6 +108,7 @@ let directories = [
     'mqtt',
     'deckgl-location',
     'chart-archive-realtime',
+    'chart-archive-realtime-consysapi',
     'chart-archive-realtime-batch',
     'chart-archive-realtime-synchronized',
     'chart-archive-realtime-synchronized-consysapi',
