@@ -6,7 +6,7 @@
         :dataSynchronizer="dataSynchronizer"
         @event='onControlEvent'
         :skipTimeStep="'60s'" 
-        :trackRealtime=true
+        :replaySpeedStep=0.1
         v-if="dataSynchronizer"
     ></TimeController>
   </div>
@@ -15,7 +15,6 @@
 // @ is an alias to /src.
 import ChartJsView from 'osh-js/core/ui/view/chart/ChartJsView.js';
 import CurveLayer from 'osh-js/core/ui/layer/CurveLayer.js';
-import SosGetResult from 'osh-js/core/datasource/sos/SosGetResult.datasource.js';
 import TimeController from 'osh-js/vue/components/TimeController.vue';
 import {Mode} from 'osh-js/core/datasource/Mode';
 import DataSynchronizer from 'osh-js/core/timesync/DataSynchronizer';
@@ -39,15 +38,15 @@ export default {
 
     const dsReplaySpeed = 1.0;
 
-    let startTime = (new Date(Date.now() - 60 * 1000 * 60 * 1).toISOString());
+    const startTime = (new Date(Date.now() - 60 * 1000 * 2).toISOString());
     let endTime = (new Date(Date.now()).toISOString());
 
     const commonDatasourceOpts = {
-      endpointUrl:  'api.georobotix.io/ogc/t18/api',
+      endpointUrl:  'api.georobotix.io/ogc/demo1/api',
       protocol: 'mqtt',
       mqttOpts: {
         prefix: '/api',
-        endpointUrl: 'api.georobotix.io:443/ogc/t18'
+        endpointUrl: 'api.georobotix.io:443/ogc/demo1'
       },
       tls: tls,
       startTime: startTime,
@@ -60,7 +59,7 @@ export default {
 
     const chartDataSource = new ConSysApi('Simulated Weather Sensor - weather', {
           ...commonDatasourceOpts,
-          resource: '/datastreams/0tsop3f16nvp8/observations',
+          resource: '/datastreams/vadu2mqtbnrsa/observations',
           responseFormat: 'application/swe+json',
     });
 
