@@ -219,6 +219,13 @@ var samples = [
         datasourceType: 'SOS',
     },
     {
+        name: "Chart with Time controller (Chart.js) in batch mode",
+        description: "(consysapi) Display a chart using full batch mode with time series of weather measurements and time controller.",
+        url: "chart-archive-realtime-batch-consysapi",
+        code: 'vue/App_examples/chart-archive-realtime-batch-consysapi.vue',
+        datasourceType: 'Connected Systems!',
+    },
+    {
         name: "Chart with Time controller and Synchronizer (Chart.js)",
         description: "Display a chart with time series of weather measurements and time controller.",
         url: "chart-archive-realtime-synchronized",

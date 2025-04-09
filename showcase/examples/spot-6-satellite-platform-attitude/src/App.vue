@@ -6,7 +6,7 @@
         :dataSynchronizer="dataSynchronizer"
         @event='onControlEvent'
         :skipTimeStep="'60s'"
-        :trackRealtime="'00:01:00'"
+        :replaySpeedStep=0.1
         v-if="dataSynchronizer"
     ></TimeController>
   </div>
@@ -38,9 +38,6 @@ export default {
 
    const startTime = (new Date(Date.now() - 60 * 1000 * 2).toISOString());
    const endTime = (new Date().toISOString());
-
-    // const startTime = 2025-07-20T23:32:03.313Z;
-    // const endTime = 2026-01-25T13:26:44Z;
 
     const commonDatasourceOpts = {
       endpointUrl:  'api.georobotix.io/ogc/demo1/api',
@@ -74,14 +71,14 @@ export default {
           getValues: (rec, timestamp) => {
             return {
               x: rec.timestamp,
-              y: rec.qx
+              y: rec.att
             }
           },
           lineColor: 'rgba(0,220,204,0.5)',
           backgroundColor: 'rgba(0,220,204,0.5)',
           fill:true,
           getCurveId:(rec, timestamp) => 2,
-          name: 'qx'
+          name: 'platform att'
         })
       ],
       css: "chart-view",
