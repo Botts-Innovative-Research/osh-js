@@ -110,6 +110,7 @@ let directories = [
     'chart-archive-realtime',
     'chart-archive-realtime-consysapi',
     'chart-archive-realtime-batch',
+    'chart-archive-realtime-batch-consysapi',
     'chart-archive-realtime-synchronized',
     'chart-archive-realtime-synchronized-consysapi',
     'audio',
