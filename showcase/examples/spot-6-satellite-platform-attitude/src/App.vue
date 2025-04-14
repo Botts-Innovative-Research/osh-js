@@ -36,8 +36,8 @@ export default {
 
     const dsReplaySpeed = 1.0;
 
-   const startTime = (new Date(Date.now() - 60 * 1000 * 2).toISOString());
-   const endTime = (new Date().toISOString());
+    const startTime = (new Date(Date.now() - 60 * 1000 * 2).toISOString());
+    const endTime = (new Date().toISOString());
 
     const commonDatasourceOpts = {
       endpointUrl:  'api.georobotix.io/ogc/demo1/api',
@@ -55,11 +55,17 @@ export default {
       prefetchBatchSize: 250
     };
 
-    const chartDataSource1 = new ConSysApi('SPOT-6 Satellite - Platform Attitude', {
-      ...commonDatasourceOpts,
-      resource: '/datastreams/viqsgnpe4i7oq/observations',
-      responseFormat: 'application/swe+json',
-    });
+    let chartDataSource1 = new ConSysApi("SPOT-6 Satellite - Platform Attitude", {
+          ...commonDatasourceOpts,
+          resource: '/datastreams/viqsgnpe4i7oq/observations',
+          responseFormat: 'application/swe+json',
+        });
+
+    let chartDataSource2 = new ConSysApi("SPOT-6 Satellite - Platform Attitude", {
+          ...commonDatasourceOpts,
+          resource: '/datastreams/viqsgnpe4i7oq/observations',
+          responseFormat: 'application/swe+json',
+        });
 
 
     this.view = new ChartJsView({
@@ -71,15 +77,30 @@ export default {
           getValues: (rec, timestamp) => {
             return {
               x: rec.timestamp,
-              y: rec.att
+              y: rec.qx
             }
           },
           lineColor: 'rgba(0,220,204,0.5)',
           backgroundColor: 'rgba(0,220,204,0.5)',
           fill:true,
           getCurveId:(rec, timestamp) => 2,
-          name: 'platform att'
-        })
+          name: 'platform att qx'
+        }),
+        new CurveLayer({
+              maxValues: 1000,
+              dataSourceId: chartDataSource2.id,
+              getValues: (rec, timestamp) => {
+                return {
+                  x: rec.timestamp,
+                  y: rec.qy
+                }
+              },
+              lineColor: 'rgba(0,220,204,0.5)',
+              backgroundColor: 'rgba(0,220,204,0.5)',
+              fill:true,
+              getCurveId:(rec, timestamp) => 2,
+              name: 'platform att qy'
+            })
       ],
       css: "chart-view",
       datasetOptions: {
