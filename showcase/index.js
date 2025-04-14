@@ -140,9 +140,9 @@ var samples = [
 //            url: "predator-uav-misb-simulated",
 //            datasourceType: 'Connected Systems',
 //        },
-{
+    {
         name: "SPOT-6 Satellite - Platform Attitude",
-        description: "spot 6 satellite",
+        description: "spot 6 satellite (doesnt work)",
         url: "spot-6-satellite-platform-attitude",
         code: 'vue/App_examples/spot-6-satellite-platform-attitude.vue',
         datasourceType: 'Connected Systems',
@@ -223,7 +223,7 @@ var samples = [
         description: "(consysapi) Display a chart using full batch mode with time series of weather measurements and time controller.",
         url: "chart-archive-realtime-batch-consysapi",
         code: 'vue/App_examples/chart-archive-realtime-batch-consysapi.vue',
-        datasourceType: 'Connected Systems!',
+        datasourceType: 'Connected Systems',
     },
     {
         name: "Chart with Time controller and Synchronizer (Chart.js)",
