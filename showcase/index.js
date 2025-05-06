@@ -226,6 +226,12 @@ var samples = [
         datasourceType: 'Connected Systems',
     },
     {
+        name: "Simulated Weather Sensor - Sensor Location",
+        description: "(consysapi) Displaying a point marker showing the location of a weather sensor.",
+        url: "weather-pt-marker",
+        datasourceType: 'Connected Systems',
+    },
+    {
         name: "Chart with Time controller and Synchronizer (Chart.js)",
         description: "Display a chart with time series of weather measurements and time controller.",
         url: "chart-archive-realtime-synchronized",
