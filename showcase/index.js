@@ -228,7 +228,7 @@ var samples = [
     {
         name: "Simulated Weather Sensor - Sensor Location",
         description: "(consysapi) Displaying a point marker showing the location of a weather sensor.",
-        url: "weather-pt-marker",
+        url: "weather-marker",
         datasourceType: 'Connected Systems',
     },
     {

@@ -94,7 +94,7 @@ let directories = [
     'consys-video-h264-webcodec-api',
     'predator-uav-misb',
     'dahua-office-video',
-    'weather-pt-marker',
+    'weather-marker',
     //'dahua-ptz-video',
     'dji-video',
     //'predator-uav-misb-simulated',
