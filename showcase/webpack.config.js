@@ -95,6 +95,7 @@ let directories = [
     'predator-uav-misb',
     'dahua-office-video',
     'weather-marker',
+    'predator-uav-location',
     //'dahua-ptz-video',
     'dji-video',
     //'predator-uav-misb-simulated',
