@@ -13,31 +13,31 @@ window.CESIUM_BASE_URL = './';
 
 const REPLAY_SPEED = 1.0;
 
-// create data source for weather sensor
-let weatherDataSource =  new ConSysApi('Simulated Weather Sensor - Sensor Location', {
+// create data source for uav location
+let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-04-17T18:54:41.08Z',
-  endTime: '2025-04-17T18:57:17Z',
-  minTime: '2025-04-17T18:54:41.08Z',
-  maxTime: '2025-04-17T18:57:17Z',
+  startTime: '2025-05-08T16:12:14Z',
+  endTime: '2025-05-08T16:22:28Z',
+  minTime: '2025-05-08T16:12:14Z',
+  maxTime: '2025-05-08T16:22:28Z',
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
   prefetchBatchSize: 250,
-  resource: '/datastreams/d0nbmp1npvp3o/observations',
+  resource: '/datastreams/6ft4mrvfugkr2/observations',
   responseFormat: 'application/swe+json',
   timeShift: -16000
 });
 
 const dataSynchronizer = new DataSynchronizer({
     replaySpeed: 2,
-    dataSources: [weatherDataSource]
+    dataSources: [uavDataSource]
 });
 
 // style it with a point marker
 let pointMarker = new PointMarkerLayer({
-    dataSourceId: weatherDataSource.id,
+    dataSourceId: uavDataSource.id,
     getLocation: (rec) => ({
         x: rec.location.lon,
         y: rec.location.lat,
