@@ -13,35 +13,35 @@ window.CESIUM_BASE_URL = './';
 
 const REPLAY_SPEED = 1.0;
 
-// create data source for weather sensor
-let weatherDataSource =  new ConSysApi('Simulated Weather Sensor - Sensor Location', {
+// create data sources
+let satelliteDataSource =  new ConSysApi('SPOT-6 Satellite - Platform Location', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-05-09T14:16:30.041Z',
-  endTime: '2025-05-10T14:16:30Z',
-  minTime: '2025-05-09T14:16:30.041Z',
-  maxTime: '2025-05-10T14:16:30Z ',
+  startTime: '2025-06-20T00:54:42Z',
+  endTime: '2026-02-27T23:01:34Z',
+  minTime: '2025-06-20T00:54:42Z',
+  maxTime: '2026-02-27T23:01:34Z',
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
   prefetchBatchSize: 250,
-  resource: '/datastreams/d0nbmp1npvp3o/observations',
+  resource: '/datastreams/28ksb4qmubgfs/observations',
   responseFormat: 'application/swe+json',
   timeShift: -16000
 });
 
 const dataSynchronizer = new DataSynchronizer({
     replaySpeed: 2,
-    dataSources: [weatherDataSource]
+    dataSources: [satelliteDataSource]
 });
 
 // style it with a point marker
 let pointMarker = new PointMarkerLayer({
-    dataSourceId: weatherDataSource.id,
+    dataSourceId: satelliteDataSource.id,
     getLocation: (rec) => ({
-        x: rec.location.lon,
-        y: rec.location.lat,
-        z: rec.location.alt
+        x: rec.pos.x,
+        y: rec.pos.y,
+        z: rec.pos.z
     }),
     icon: 'images/marker-icon.png',
     iconAnchor: [16, 40],
