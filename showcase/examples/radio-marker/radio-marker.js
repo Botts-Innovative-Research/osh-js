@@ -13,31 +13,30 @@ window.CESIUM_BASE_URL = './';
 
 const REPLAY_SPEED = 1.0;
 
-// create data source for weather sensor
-let weatherDataSource =  new ConSysApi('Simulated Weather Sensor - Sensor Location', {
-  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
+// create data source for sensor
+let radioDataSource =  new ConSysApi('Radiological Sensor RADIO003 - Sensor Location', {
+  endpointUrl:  'api.georobotix.io/ogc/t18/api/',
   tls: true,
-  startTime: '2025-05-09T14:16:30.041Z',
-  endTime: '2025-05-10T14:16:30Z',
-  minTime: '2025-05-09T14:16:30.041Z',
-  maxTime: '2025-05-10T14:16:30Z ',
+  startTime: '2012-06-29T14:32:34Z',
+  endTime: '2012-06-29T14:32:34Z',
+  minTime: '2012-06-29T14:32:34Z',
+  maxTime: '2012-06-29T14:32:34Z',
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
   prefetchBatchSize: 250,
-  resource: '/datastreams/d0nbmp1npvp3o/observations',
+  resource: '/datastreams/1vf8i5ois38u8/observations',
   responseFormat: 'application/swe+json',
-  timeShift: -16000
 });
 
 const dataSynchronizer = new DataSynchronizer({
     replaySpeed: 2,
-    dataSources: [weatherDataSource]
+    dataSources: [radioDataSource]
 });
 
 // style it with a point marker
 let pointMarker = new PointMarkerLayer({
-    dataSourceId: weatherDataSource.id,
+    dataSourceId: radioDataSource.id,
     getLocation: (rec) => ({
         x: rec.location.lon,
         y: rec.location.lat,
