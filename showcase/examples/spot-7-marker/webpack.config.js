@@ -16,10 +16,10 @@ const cesiumBaseUrl = "cesiumStatic";
 
 module.exports = {
     // Tell Webpack which file kicks off our app.
-    entry: path.resolve(__dirname,'radio-marker.js'),
+    entry: path.resolve(__dirname,'spot-7-marker.js'),
     // Tell Weback to output our bundle to ./dist/bundle.js
     output: {
-        filename: 'bundle.radio.marker.js',
+        filename: 'bundle.spot.7.marker.js',
         path: path.resolve(__dirname, 'dist'),
         // Needed to compile multiline strings in Cesium
         sourcePrefix: ''
@@ -93,7 +93,7 @@ module.exports = {
         compress: true,
         port: 9000,
         hot: true,
-        index: 'radio-marker.html',
+        index: 'spot-7-marker.html',
         https:true
     },
     devtool: 'source-map',
@@ -114,8 +114,8 @@ module.exports = {
         // by the Webpack dev server. We can give it a template file (written in EJS)
         // and it will handle injecting our bundle for us.
         new HtmlWebpackPlugin({
-            filename: "radio-marker.html",
-            template: path.resolve(__dirname, 'radio-marker.html')
+            filename: "spot-7-marker.html",
+            template: path.resolve(__dirname, 'spot-7-marker.html')
         }),
         // This plugin will copy files over to ‘./dist’ without transforming them.
         // That's important because the custom-elements-es5-adapter.js MUST

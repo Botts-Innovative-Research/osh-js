@@ -1,6 +1,6 @@
 import SosGetResult from 'osh-js/core/datasource/sos/SosGetResult.datasource.js';
 import CesiumView from 'osh-js/core/ui/view/map/CesiumView.js';
-import {EllipsoidTerrainProvider, Ion} from 'cesium';
+import {EllipsoidTerrainProvider, Ion, Cartesian3} from 'cesium';
 import PointMarkerLayer from 'osh-js/core/ui/layer/PointMarkerLayer.js';
 import {Mode} from 'osh-js/core/datasource/Mode';
 import DataSynchronizer from 'osh-js/core/timesync/DataSynchronizer';
@@ -17,9 +17,9 @@ const REPLAY_SPEED = 1.0;
 let satelliteDataSource =  new ConSysApi('SPOT-6 Satellite - Platform Location', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-06-20T00:54:42Z',
+  startTime: '2026-02-27T22:51:35.313Z',
   endTime: '2026-02-27T23:01:34Z',
-  minTime: '2025-06-20T00:54:42Z',
+  minTime: '2026-02-27T22:51:35.313Z',
   maxTime: '2026-02-27T23:01:34Z',
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
@@ -29,11 +29,13 @@ let satelliteDataSource =  new ConSysApi('SPOT-6 Satellite - Platform Location',
   responseFormat: 'application/swe+json',
   timeShift: -16000
 });
+console.log('satellite data source created:', satelliteDataSource);
 
 const dataSynchronizer = new DataSynchronizer({
     replaySpeed: 2,
     dataSources: [satelliteDataSource]
 });
+
 
 // style it with a point marker
 let pointMarker = new PointMarkerLayer({
@@ -48,6 +50,7 @@ let pointMarker = new PointMarkerLayer({
     iconSize: [32, 65],
     allowBillboardRotation: false
 });
+console.log('point marker created');
 
 // #region snippet_cesium_location_view
 // create Cesium view
@@ -55,9 +58,14 @@ let cesiumView = new CesiumView({
     container: 'cesium-container',
     layers: [pointMarker]
 });
+console.log('cesium view done');
 
 // #endregion snippet_cesium_location_view
 cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
+
+//cesiumView.viewer.camera.flyTo({
+//    destination: Cartesian3.fromDegrees(34.707626376630564, -86.65334130015846, 3047.812619211108)
+//});
 
 // start streaming
 dataSynchronizer.connect();

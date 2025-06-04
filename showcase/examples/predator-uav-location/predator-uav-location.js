@@ -16,20 +16,23 @@ window.CESIUM_BASE_URL = './';
 
 const REPLAY_SPEED = 1.0;
 
+const begin = '2025-06-04T15:05:04.502Z';
+const fin = '2025-06-05T15:05:04.502Z';
+
 // create data source for uav location
 let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-05-14T15:40:24Z',
-  endTime: '2025-05-15T16:12:14Z',
-  minTime: '2025-05-14T15:40:24Z',
-  maxTime: '2025-05-15T16:12:14Z',
+  startTime: begin,
+  endTime: fin,
+  minTime: begin,
+  maxTime: fin,
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
   prefetchBatchSize: 250,
   resource: '/datastreams/6ft4mrvfugkr2/observations',
-  responseFormat: 'application/swe+json',
+  responseFormat: 'application/om+json',
   timeShift: -16000
 });
 
@@ -37,16 +40,16 @@ let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Lo
 let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform Attitude', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-05-12T19:47:23Z',
-  endTime: '2025-05-15T16:12:14Z',
-  minTime: '2025-05-12T19:47:23Z',
-  maxTime: '2025-05-15T16:12:14Z',
+  startTime: begin,
+  endTime: fin,
+  minTime: begin,
+  maxTime: fin,
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
   prefetchBatchSize: 250,
   resource: '/datastreams/98nto59268lok/observations',
-  responseFormat: 'application/swe+json',
+  responseFormat: 'application/om+json',
   timeShift: -16000
 });
 
@@ -81,6 +84,10 @@ let cesiumView = new CesiumView({
 
 // #endregion snippet_cesium_location_view
 cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
+
+//cesiumView.viewer.camera.flyTo({
+//    destination: Cartesian3.fromDegrees(34.69824752989143, -86.67816246239383, 3047.812619211108)
+//});
 
 // start streaming
 dataSynchronizer.connect();
