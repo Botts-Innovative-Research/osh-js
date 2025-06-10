@@ -271,7 +271,15 @@ class WebCodecView extends CanvasView {
                 type: key ? 'key' : 'delta',
                 data: pktData
             });
-            this.videoDecoder.decode(chunk);
+            try {
+                this.videoDecoder.decode(chunk);
+            } catch (e) {
+                if (e.message === "Failed to execute 'decode' on 'VideoDecoder': A key frame is required after configure() or flush(). If you're using AVC formatted H.264 you must fill out the description field in the VideoDecoderConfig.") {
+                    console.warn('Missing keyframe');
+                } else {
+                    throw e;
+                }
+            }
         } else {
             console.warn('decoder has not been initialized yet');
         }
