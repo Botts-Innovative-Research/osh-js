@@ -8,6 +8,7 @@ import ConSysApi from 'osh-js/core/datasource/consysapi/ConSysApi.datasource.js'
 import {
     Cartesian3
 } from '@cesium/engine';
+import {EventType} from 'osh-js/core/event/EventType';
 
 Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ODY0NTkzNS02NzI0LTQwNDktODk4Zi0zZDJjOWI2NTdmYTMiLCJpZCI6MTA1N' +
     'zQsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NTY4NzI1ODJ9.IbAajOLYnsoyKy1BOd7fY1p6GH-wwNVMdMduA2IzGjA';
@@ -16,49 +17,85 @@ window.CESIUM_BASE_URL = './';
 
 const REPLAY_SPEED = 1.0;
 
-const begin = '2025-06-04T15:05:04.502Z';
-const fin = '2025-06-05T15:05:04.502Z';
+const begin = '2025-06-12T14:11:06.410999755Z';
+const fin = '2025-06-13T14:11:06.410999755Z';
 
 // create data source for uav location
+//let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
+//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
+//  tls: true,
+//  startTime: begin,
+//  endTime: fin,
+//  minTime: begin,
+//  maxTime: fin,
+//  mode: Mode.REPLAY,
+//  replaySpeed: REPLAY_SPEED,
+//  prefetchBatchDuration: 10000,
+//  prefetchBatchSize: 250,
+//  resource: '/datastreams/6ft4mrvfugkr2/observations',
+//  responseFormat: 'application/om+json',
+//  timeShift: -16000
+//});
+
 let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
-  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-  tls: true,
-  startTime: begin,
-  endTime: fin,
-  minTime: begin,
-  maxTime: fin,
-  mode: Mode.REPLAY,
-  replaySpeed: REPLAY_SPEED,
-  prefetchBatchDuration: 10000,
-  prefetchBatchSize: 250,
-  resource: '/datastreams/6ft4mrvfugkr2/observations',
-  responseFormat: 'application/om+json',
-  timeShift: -16000
+    endpointUrl: 'api.georobotix.io/ogc/demo1/api',
+    resource: '/datastreams/6ft4mrvfugkr2/observations',
+    responseFormat: 'application/om+json',
+    tls: true,
+    protocol: 'ws',
+    mqttOpts: {
+        prefix: '/api',
+        endpointUrl: 'api.georobotix.io:443/ogc/demo1'
+    },
+    mode : Mode.REAL_TIME
 });
 
 // data source for uav attitude
+//let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform Attitude', {
+//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
+//  tls: true,
+//  startTime: begin,
+//  endTime: fin,
+//  minTime: begin,
+//  maxTime: fin,
+//  mode: Mode.REPLAY,
+//  replaySpeed: REPLAY_SPEED,
+//  prefetchBatchDuration: 10000,
+//  prefetchBatchSize: 250,
+//  resource: '/datastreams/98nto59268lok/observations',
+//  responseFormat: 'application/om+json',
+//  timeShift: -16000
+//});
+
 let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform Attitude', {
-  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-  tls: true,
-  startTime: begin,
-  endTime: fin,
-  minTime: begin,
-  maxTime: fin,
-  mode: Mode.REPLAY,
-  replaySpeed: REPLAY_SPEED,
-  prefetchBatchDuration: 10000,
-  prefetchBatchSize: 250,
-  resource: '/datastreams/98nto59268lok/observations',
-  responseFormat: 'application/om+json',
-  timeShift: -16000
+    endpointUrl: 'api.georobotix.io/ogc/demo1/api',
+    resource: '/datastreams/98nto59268lok/observations',
+    responseFormat: 'application/om+json',
+    tls: true,
+    protocol: 'ws',
+    mqttOpts: {
+        prefix: '/api',
+        endpointUrl: 'api.georobotix.io:443/ogc/demo1'
+    },
+    mode : Mode.REAL_TIME
 });
 
-const dataSynchronizer = new DataSynchronizer({
-    replaySpeed: 2,
-    dataSources: [uavDataSource, attDataSource]
-});
+
+//const dataSynchronizer = new DataSynchronizer({
+//    replaySpeed: 2,
+//    dataSources: [uavDataSource, attDataSource]
+//});
+
+uavDataSource.subscribe(msg => {
+    //TODO: do something
+}, [EventType.DATA]);
+
+attDataSource.subscribe(msg => {
+    //TODO: do something
+}, [EventType.DATA]);
 
 // style it with a point marker
+// need to convert to lon/lat?
 let pointMarker = new PointMarkerLayer({
     dataSourceIds:  [uavDataSource.getId(), attDataSource.getId()],
     getLocation: (rec) => ({
@@ -90,4 +127,5 @@ cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
 //});
 
 // start streaming
-dataSynchronizer.connect();
+uavDataSource.connect();
+attDataSource.connect();

@@ -20,10 +20,10 @@ const REPLAY_SPEED = 1.0;
 let uavGeoDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame', {
   endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
   tls: true,
-  startTime: '2025-06-03T18:30:04.320Z',
-  endTime: '2025-06-04T18:30:04.320Z',
-  minTime: '2025-06-03T18:30:04.320Z',
-  maxTime: '2025-06-04T18:30:04.320Z',
+  startTime: '2025-06-12T14:06:06.410Z',
+  endTime: '2025-06-13T14:06:06.410Z',
+  minTime: '2025-06-12T14:06:06.410Z',
+  maxTime: '2025-06-13T14:06:06.410Z',
   mode: Mode.REPLAY,
   replaySpeed: REPLAY_SPEED,
   prefetchBatchDuration: 10000,
@@ -46,6 +46,7 @@ let uavBoundedDraping = new PolygonLayer({
     opacity: .5,
     clampToGround: true,
     getVertices: (rec) => {
+        console.log('Received geoRef record:', rec);
         return [
             rec.geoRef.ulc.lon,
             rec.geoRef.ulc.lat,
