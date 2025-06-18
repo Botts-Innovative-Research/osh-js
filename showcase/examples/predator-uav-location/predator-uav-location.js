@@ -103,6 +103,7 @@ let pointMarker = new PointMarkerLayer({
         y: rec.location.lat,
         z: rec.location.alt
     }),
+    //console,log("Record:", rec);
     getOrientation: (rec) => ({
         heading: rec.attitude.heading - 90.0
     }),
@@ -111,6 +112,7 @@ let pointMarker = new PointMarkerLayer({
     iconSize: [32, 65],
     allowBillboardRotation: false
 });
+
 
 // #region snippet_cesium_location_view
 // create Cesium view
