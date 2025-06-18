@@ -8,6 +8,7 @@ import {
     Cartesian3
 } from '@cesium/engine';
 import PolygonLayer from "osh-js/core/ui/layer/PolygonLayer";
+import {EventType} from 'osh-js/core/event/EventType';
 
 Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ODY0NTkzNS02NzI0LTQwNDktODk4Zi0zZDJjOWI2NTdmYTMiLCJpZCI6MTA1N' +
     'zQsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NTY4NzI1ODJ9.IbAajOLYnsoyKy1BOd7fY1p6GH-wwNVMdMduA2IzGjA';
@@ -17,28 +18,45 @@ window.CESIUM_BASE_URL = './';
 const REPLAY_SPEED = 1.0;
 
 // create data source for geo ref
+//let uavGeoDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame', {
+//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
+//  tls: true,
+//  startTime: '2025-06-12T14:06:06.410Z',
+//  endTime: '2025-06-13T14:06:06.410Z',
+//  minTime: '2025-06-12T14:06:06.410Z',
+//  maxTime: '2025-06-13T14:06:06.410Z',
+//  mode: Mode.REPLAY,
+//  replaySpeed: REPLAY_SPEED,
+//  prefetchBatchDuration: 10000,
+//  prefetchBatchSize: 250,
+//  resource: '/datastreams/15po2igbfnjjk/observations',
+//  responseFormat: 'application/om+json',
+//  timeShift: -16000
+//});
+
 let uavGeoDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame', {
-  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-  tls: true,
-  startTime: '2025-06-12T14:06:06.410Z',
-  endTime: '2025-06-13T14:06:06.410Z',
-  minTime: '2025-06-12T14:06:06.410Z',
-  maxTime: '2025-06-13T14:06:06.410Z',
-  mode: Mode.REPLAY,
-  replaySpeed: REPLAY_SPEED,
-  prefetchBatchDuration: 10000,
-  prefetchBatchSize: 250,
-  resource: '/datastreams/15po2igbfnjjk/observations',
-  responseFormat: 'application/om+json',
-  timeShift: -16000
+    endpointUrl: 'api.georobotix.io/ogc/demo1/api',
+    resource: '/datastreams/15po2igbfnjjk/observations',
+    responseFormat: 'application/swe+json',
+    tls: true,
+    protocol: 'ws',
+    mqttOpts: {
+        prefix: '/api',
+        endpointUrl: 'api.georobotix.io:443/ogc/demo1'
+    },
+    mode : Mode.REAL_TIME
 });
 console.log('uav geo point marker created');
 
-const dataSynchronizer = new DataSynchronizer({
-    replaySpeed: 2,
-    dataSources: [uavGeoDataSource]
-});
-console.log('uav geo data sync');
+uavGeoDataSource.subscribe(msg => {
+    //TODO: do something
+}, [EventType.DATA]);
+
+//const dataSynchronizer = new DataSynchronizer({
+//    replaySpeed: 2,
+//    dataSources: [uavGeoDataSource]
+//});
+//console.log('uav geo data sync');
 
 // bounded draping layer
 let uavBoundedDraping = new PolygonLayer({
@@ -77,4 +95,5 @@ cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
 //});
 
 // start streaming
-dataSynchronizer.connect();
+//dataSynchronizer.connect();
+uavGeoDataSource.connect();
