@@ -76,6 +76,7 @@ let uavBoundedDraping = new PolygonLayer({
             rec.geoRef.urc.lat,
         ];
     },
+    defaultToTerrainElevation: true,
 });
 console.log('uav layer created');
 
