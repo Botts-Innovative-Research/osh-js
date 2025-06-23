@@ -99,13 +99,14 @@ attDataSource.subscribe(msg => {
 let pointMarker = new PointMarkerLayer({
     dataSourceIds:  [uavDataSource.getId(), attDataSource.getId()],
     getLocation: (rec) => ({
-        x: rec.location.lon,
-        y: rec.location.lat,
-        z: rec.location.alt
+        x: rec.result.location.lon,
+        y: rec.result.location.lat,
+        z: rec.result.location.alt
     }),
+    defaultToTerrainElevation: true,
     //console,log("Record:", rec);
     getOrientation: (rec) => ({
-        heading: rec.attitude.heading - 90.0
+        heading: rec.result.attitude.heading - 90.0
     }),
     icon: 'images/marker-icon.png',
     iconAnchor: [16, 40],
