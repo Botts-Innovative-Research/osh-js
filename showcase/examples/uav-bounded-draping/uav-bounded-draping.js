@@ -92,7 +92,7 @@ console.log('uav view');
 cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
 
 //cesiumView.viewer.camera.flyTo({
-//    destination: Cartesian3.fromDegrees(34.68361017046664, -86.67185709191106, 0)
+//    destination: Cartesian3.fromDegrees(34.69461569315503, -86.67162717630697, 0)
 //});
 
 // start streaming

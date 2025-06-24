@@ -20,22 +20,6 @@ const REPLAY_SPEED = 1.0;
 const begin = '2025-06-12T14:11:06.410999755Z';
 const fin = '2025-06-13T14:11:06.410999755Z';
 
-// create data source for uav location
-//let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
-//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-//  tls: true,
-//  startTime: begin,
-//  endTime: fin,
-//  minTime: begin,
-//  maxTime: fin,
-//  mode: Mode.REPLAY,
-//  replaySpeed: REPLAY_SPEED,
-//  prefetchBatchDuration: 10000,
-//  prefetchBatchSize: 250,
-//  resource: '/datastreams/6ft4mrvfugkr2/observations',
-//  responseFormat: 'application/om+json',
-//  timeShift: -16000
-//});
 
 let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Location', {
     endpointUrl: 'api.georobotix.io/ogc/demo1/api',
@@ -50,23 +34,6 @@ let uavDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Sensor Lo
     mode : Mode.REAL_TIME
 });
 
-// data source for uav attitude
-//let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform Attitude', {
-//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-//  tls: true,
-//  startTime: begin,
-//  endTime: fin,
-//  minTime: begin,
-//  maxTime: fin,
-//  mode: Mode.REPLAY,
-//  replaySpeed: REPLAY_SPEED,
-//  prefetchBatchDuration: 10000,
-//  prefetchBatchSize: 250,
-//  resource: '/datastreams/98nto59268lok/observations',
-//  responseFormat: 'application/om+json',
-//  timeShift: -16000
-//});
-
 let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform Attitude', {
     endpointUrl: 'api.georobotix.io/ogc/demo1/api',
     resource: '/datastreams/98nto59268lok/observations',
@@ -80,12 +47,6 @@ let attDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - Platform 
     mode : Mode.REAL_TIME
 });
 
-
-//const dataSynchronizer = new DataSynchronizer({
-//    replaySpeed: 2,
-//    dataSources: [uavDataSource, attDataSource]
-//});
-
 uavDataSource.subscribe(msg => {
     //TODO: do something
 }, [EventType.DATA]);
@@ -95,19 +56,18 @@ attDataSource.subscribe(msg => {
 }, [EventType.DATA]);
 
 // style it with a point marker
-// need to convert to lon/lat?
 let pointMarker = new PointMarkerLayer({
-    dataSourceIds:  [uavDataSource.getId(), attDataSource.getId()],
-    getLocation: (rec) => ({
+    getLocation: {dataSourceIds: [uavDataSource.getId()],
+    handler: (rec) => ({
         x: rec.result.location.lon,
         y: rec.result.location.lat,
         z: rec.result.location.alt
-    }),
+    })},
     defaultToTerrainElevation: true,
-    //console,log("Record:", rec);
-    getOrientation: (rec) => ({
-        heading: rec.result.attitude.heading - 90.0
-    }),
+    getOrientation: {dataSourceIds: [attDataSource.getId()],
+    handler: (rec) => ({
+        heading: rec.attitude.heading - 90.0
+    })},
     icon: 'images/marker-icon.png',
     iconAnchor: [16, 40],
     iconSize: [32, 65],
