@@ -71,6 +71,11 @@ $ npm run prod
 
 
 ## Dependencies
+
+Node Version 16.20.2 is needed to successfully run the showcase.
+
+To see the showcase, use https://localhost:9000/
+
 ### Cesium
 
 If you use the CesiumView, don't forget to install the corresponding npm package 'cesium'.
