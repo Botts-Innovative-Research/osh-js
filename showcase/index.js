@@ -128,15 +128,15 @@ var samples = [
             url: "dji-video",
             datasourceType: 'Connected Systems',
         },
-    {
-        name: 'SPOT-6 Satellite - Platform Location',
-        description: 'spot 6 satellite location point marker (its kinda running away from me but it is working...)',
-        url: 'spot-6-marker',
-        datasourceType: 'Connected Systems',
-    },
+//    {
+//        name: 'SPOT-6 Satellite - Platform Location',
+//        description: 'spot 6 satellite location point marker (its kinda running away from me but it is working...)',
+//        url: 'spot-6-marker',
+//        datasourceType: 'Connected Systems',
+//    },
     {
         name: 'SPOT-7 Satellite - Platform Location',
-        description: 'spot 7 satellite location point marker',
+        description: 'spot 7 satellite location point marker (works on occasion... zooms to random spot and only sometimes shows an actual marker)',
         url: 'spot-7-marker',
         datasourceType: 'Connected Systems',
     },
@@ -184,12 +184,12 @@ var samples = [
 //        code: 'vue/App_examples/avl-with-control-vuejs.vue',
 //        datasourceType: 'SOS',
 //    },
-//    {
-//        name: 'ISA Biological & MISB UAS sensor data using MQTT protocol',
-//        description: 'Display biological and GPS sensors from ISA Biological Sensor & MISB UAS using MQTT protocol',
-//        url: 'mqtt',
-//        datasourceType: 'Connected Systems',
-//    },
+    {
+        name: 'ISA Biological & MISB UAS sensor data using MQTT protocol',
+        description: 'Display biological and GPS sensors from ISA Biological Sensor & MISB UAS using MQTT protocol',
+        url: 'mqtt',
+        datasourceType: 'Connected Systems',
+    },
 //    {
 //        name: "Chart with Time controller (Chart.js)",
 //        description: "Display a chart with time series of weather measurements and time controller.",
@@ -232,7 +232,7 @@ var samples = [
     },
     {
         name: "Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame",
-        description: "(consysapi) predator uav misb bounded draping layer",
+        description: "(consysapi) predator uav misb bounded draping layer. zoom into hsv alabama area",
         url: "uav-bounded-draping",
         datasourceType: 'Connected Systems',
     },
