@@ -18,22 +18,6 @@ window.CESIUM_BASE_URL = './';
 const REPLAY_SPEED = 1.0;
 
 // create data source for geo ref
-//let uavGeoDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame', {
-//  endpointUrl:  'api.georobotix.io/ogc/demo1/api/',
-//  tls: true,
-//  startTime: '2025-06-12T14:06:06.410Z',
-//  endTime: '2025-06-13T14:06:06.410Z',
-//  minTime: '2025-06-12T14:06:06.410Z',
-//  maxTime: '2025-06-13T14:06:06.410Z',
-//  mode: Mode.REPLAY,
-//  replaySpeed: REPLAY_SPEED,
-//  prefetchBatchDuration: 10000,
-//  prefetchBatchSize: 250,
-//  resource: '/datastreams/15po2igbfnjjk/observations',
-//  responseFormat: 'application/om+json',
-//  timeShift: -16000
-//});
-
 let uavGeoDataSource =  new ConSysApi('Predator UAV (MISB Simulated RT) - GeoReferenced Image Frame', {
     endpointUrl: 'api.georobotix.io/ogc/demo1/api',
     resource: '/datastreams/15po2igbfnjjk/observations',
@@ -51,12 +35,6 @@ console.log('uav geo point marker created');
 uavGeoDataSource.subscribe(msg => {
     //TODO: do something
 }, [EventType.DATA]);
-
-//const dataSynchronizer = new DataSynchronizer({
-//    replaySpeed: 2,
-//    dataSources: [uavGeoDataSource]
-//});
-//console.log('uav geo data sync');
 
 // bounded draping layer
 let uavBoundedDraping = new PolygonLayer({

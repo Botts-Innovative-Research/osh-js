@@ -36,7 +36,6 @@ const dataSynchronizer = new DataSynchronizer({
     dataSources: [satelliteDataSource]
 });
 
-
 // style it with a point marker
 let pointMarker = new PointMarkerLayer({
     dataSourceId: satelliteDataSource.id,
