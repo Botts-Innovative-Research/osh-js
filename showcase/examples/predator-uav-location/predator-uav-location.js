@@ -85,10 +85,6 @@ let cesiumView = new CesiumView({
 // #endregion snippet_cesium_location_view
 cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
 
-//cesiumView.viewer.camera.flyTo({
-//    destination: Cartesian3.fromDegrees(34.69824752989143, -86.67816246239383, 3047.812619211108)
-//});
-
 // start streaming
 uavDataSource.connect();
 attDataSource.connect();

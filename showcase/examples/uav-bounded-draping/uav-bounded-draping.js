@@ -74,5 +74,4 @@ cesiumView.viewer.terrainProvider = new EllipsoidTerrainProvider();
 //});
 
 // start streaming
-//dataSynchronizer.connect();
 uavGeoDataSource.connect();
