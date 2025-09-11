@@ -271,6 +271,20 @@ class LeafletView extends MapView {
     }
 
     /**
+     *  Adds an image to the map.
+     * @param {imageURL}
+     * @param {bounds}
+     * @param {options}
+     */
+    addImageOverlay(imageURL, bounds, options) {
+        let overlay = new L.ImageOverlay(imageURL, bounds, options)
+            .addTo(this.map);
+
+        return overlay;
+    }
+
+
+    /**
      * Updates the marker associated to the layer.
      * @param {PointMarkerLayer.props} props - The layer properties allowing the update of the marker
      */
@@ -454,7 +468,7 @@ class LeafletView extends MapView {
     onResize() {
         super.onResize();
         let that = this;
-        setTimeout(function(){ that.map.invalidateSize()}, 100);
+        setTimeout(function(){ that.map.invalidateSize();}, 100);
 
     }
 
