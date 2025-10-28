@@ -44,6 +44,7 @@ class Commands extends ConnectedSystemsApi {
     async searchCommands(commandFilter = new CommandFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.commands.search,
+            this.getHeaders(),
             commandFilter,
             pageSize,
             this.conSysApiCommandParser

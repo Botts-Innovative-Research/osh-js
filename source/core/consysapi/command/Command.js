@@ -51,6 +51,7 @@ class Command extends ConnectedSystemsApi {
             this.baseUrl() + API.commands.status.replace('{sysid}',this.properties['system@id'])
                                .replace('{csid}', this.properties['controlstream@id'])
                                .replace('{cmdid}', this.properties.id),
+            this.getHeaders(),
             commandFilter,
             pageSize,
             this.jsonParser

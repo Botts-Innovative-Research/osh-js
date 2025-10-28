@@ -20,8 +20,9 @@ class Collection {
     /**
      *
      */
-    constructor(url, filter, pageSize, parser, responseFormat = 'json') {
+    constructor(url, headers, filter, pageSize, parser, responseFormat = 'json') {
         this.url = url;
+        this.headers = headers;
         this.filter = filter;
         this.pageSize = pageSize;
         this.parser = parser;
@@ -44,11 +45,12 @@ class Collection {
     async fetchData(offset) {
         const queryString = `${this.filter.toQueryString()}&offset=${offset}&limit=${this.pageSize}`;
         const fullUrl = this.url + '?' + queryString;
+        const headers = this.headers ?? {};
 
         const jsonResponse = await fetch(fullUrl, {
             method: 'GET',
             credentials: 'include',
-            headers: {}
+            headers: headers
         }).then((response) => {
             if (!response.ok) {
                 const err = new Error(`Got ${response.status} response from ${fullUrl}`);

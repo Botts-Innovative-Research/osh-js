@@ -20,8 +20,8 @@ class ObservationsCollection extends Collection {
     /**
      *
      */
-    constructor(url, filter, pageSize, parser) {
-        super(url,filter ,pageSize ,parser, 'arraybuffer');
+    constructor(url, headers, filter, pageSize, parser) {
+        super(url, headers, filter, pageSize, parser, 'arraybuffer');
     }
 
     async parseResponse(encodedResponse) {

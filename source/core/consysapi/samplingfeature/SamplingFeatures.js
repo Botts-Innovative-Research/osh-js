@@ -44,7 +44,12 @@ class SamplingFeatures extends ConnectedSystemsApi {
      * @return {Promise<Collection<SamplingFeatures>>} - A Collection of SamplingFeatures
      */
     async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10) {
-        return new Collection(this.baseUrl() + API.samplingFeatures.search, samplingFeatureFilter, pageSize,this.conSysApiFetchSamplingFeatureParser);
+        return new Collection(
+            this.baseUrl() + API.samplingFeatures.search,
+            this.getHeaders(),
+            samplingFeatureFilter,
+            pageSize,
+            this.conSysApiFetchSamplingFeatureParser);
     }
 
     /**

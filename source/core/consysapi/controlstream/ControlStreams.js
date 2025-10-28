@@ -44,6 +44,7 @@ class ControlStreams extends ConnectedSystemsApi {
     async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.controlstreams.search,
+            this.getHeaders(),
             controlStreamFilter,
             pageSize,
             this.conSysApiControlStreamParser

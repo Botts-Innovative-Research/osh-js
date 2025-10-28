@@ -72,6 +72,7 @@ class System extends ConnectedSystemsApi {
     async searchSubSystems(systemFilter = new SystemFilter(), pageSize = 10) {
         return new Collection(
             this.baseUrl() + API.systems.subsystems.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             systemFilter,
             pageSize,
             this.conSysApiFetchSystemParser
@@ -88,6 +89,7 @@ class System extends ConnectedSystemsApi {
     async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.datastreams.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             dataStreamFilter,
             pageSize,
             this.conSysApiDataStreamParser
@@ -104,6 +106,7 @@ class System extends ConnectedSystemsApi {
     async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.samplingFeatures.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             samplingFeatureFilter,
             pageSize,
             this.conSysApiFetchSamplingFeatureParser
@@ -120,6 +123,7 @@ class System extends ConnectedSystemsApi {
     async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.controlstreams.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             controlStreamFilter,
             pageSize,
             this.conSysApiFetchControlStreamParser
@@ -150,6 +154,7 @@ class System extends ConnectedSystemsApi {
     async searchEvents(eventFilter = new EventFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.events.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             eventFilter,
             pageSize,
             this.conSysApiFetchEventParser
@@ -166,6 +171,7 @@ class System extends ConnectedSystemsApi {
     async searchHistory(systemHistoryFilter = new SystemHistoryFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.history.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             systemHistoryFilter,
             pageSize,
             this.conSysApiFetchSystemParser
@@ -182,6 +188,7 @@ class System extends ConnectedSystemsApi {
     async searchMembers(systemFilter = new SystemFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.systems.members.replace('{sysid}',this.properties.id),
+            this.getHeaders(),
             systemFilter,
             pageSize,
             this.conSysApiFetchSystemParser

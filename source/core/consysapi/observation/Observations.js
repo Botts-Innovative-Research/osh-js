@@ -42,7 +42,13 @@ class Observations extends ConnectedSystemsApi {
      * @return {Promise<Collection<Observation>>} - A Collection of Observation
      */
     async searchObservations(observationFilter = new ObservationFilter(), pageSize= 10) {
-        return new Collection(this.baseUrl() + API.observations.search, observationFilter, pageSize,this.conSysApiFetchObservationParser);
+        return new Collection(
+            this.baseUrl() + API.observations.search,
+            this.getHeaders(),
+            observationFilter,
+            pageSize,
+            this.conSysApiFetchObservationParser
+        );
     }
 
     /**

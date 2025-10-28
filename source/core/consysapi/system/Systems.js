@@ -44,7 +44,12 @@ class Systems extends ConnectedSystemsApi {
      * @return {Promise<Collection<System>>} - A collection of System
      */
     async searchSystems(systemFilter = new SystemFilter(), pageSize = 10) {
-        return new Collection(this.baseUrl() + API.systems.search, systemFilter, pageSize, this.conSysApiFetchSystemParser);
+        return new Collection(
+            this.baseUrl() + API.systems.search,
+            this.getHeaders(),
+            systemFilter,
+            pageSize,
+            this.conSysApiFetchSystemParser);
     }
 
     /**

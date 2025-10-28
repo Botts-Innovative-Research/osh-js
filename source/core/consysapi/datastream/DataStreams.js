@@ -44,6 +44,7 @@ class DataStreams extends ConnectedSystemsApi {
     async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10) {
         return new Collection(
             this.baseUrl() + API.datastreams.search,
+            this.getHeaders(),
             dataStreamFilter,
             pageSize,
             this.conSysApiDataStreamParser

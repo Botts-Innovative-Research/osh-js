@@ -57,6 +57,7 @@ class ControlStream extends ConnectedSystemsApi {
         return new ObservationsCollection(
             this.baseUrl() + API.controlstreams.commands.replace('{sysid}',
                 this.properties['system@id']).replace('{csid}',this.properties.id),
+            this.getHeaders(),
             commandFilter,
             pageSize,
             this.conSysApiResultCollectionControlStreamParser
@@ -138,6 +139,7 @@ class ControlStream extends ConnectedSystemsApi {
         return new Collection(
             this.baseUrl() + API.controlstreams.status.replace('{sysid}',this.properties['system@id']).replace('{csid}',
                 this.properties.id),
+            this.getHeaders(),
                 controlStreamFilter,
             pageSize,
             this.conSysApiControlStreamStatusParser
