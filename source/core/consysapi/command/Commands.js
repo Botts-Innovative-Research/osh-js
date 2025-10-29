@@ -32,7 +32,7 @@ class Commands extends ConnectedSystemsApi {
      */
     constructor(networkProperties) {
         super(networkProperties); // network properties
-        this.conSysApiCommandParser = new ConSysApiFetchCommandParser(networkProperties, undefined);
+        this.conSysApiCommandParser = new ConSysApiFetchCommandParser(networkProperties);
     }
 
     /**

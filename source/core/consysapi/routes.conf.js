@@ -38,10 +38,10 @@ const API = {
     controlstreams: {
         search: '/controlstreams',
         by_id: '/controlstreams/{csid}',
-        commands: '/systems/{sysid}/controlstreams/{csid}/commands',
-        command_by_id: '/systems/{sysid}/controlstreams/{csid}/commands/{cmdid}',
-        status: '/systems/{sysid}/controlstreams/{csid}/status',
-        schema: '/systems/{sysid}/controlstreams/{csid}/schema'
+        commands: '/controlstreams/{csid}/commands',
+        command_by_id: '/controlstreams/{csid}/commands/{cmdid}',
+        status: '/controlstreams/{csid}/status',
+        schema: '/controlstreams/{csid}/schema'
     },
     commands: {
         search: '/commands',

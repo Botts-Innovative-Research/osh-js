@@ -40,7 +40,7 @@ class ControlStream extends ConnectedSystemsApi {
     constructor(properties, networkProperties) {
         super(networkProperties); // network properties
         this.properties = properties;
-        this.commandParser = new ConSysApiFetchCommandParser(networkProperties, this.properties['system@id']);
+        this.commandParser = new ConSysApiFetchCommandParser(networkProperties);
         this.conSysApiResultCollectionControlStreamParser = new ConSysApiResultCollectionControlStreamParser(this);
         this.conSysApiResultControlStreamParser = new ConSysApiResultControlStreamParser(this);
         this.conSysApiControlStreamStatusParser = new ConSysApiControlStreamStatusParser();
@@ -48,15 +48,15 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      * Get the list of commands received by a particular control interface
-     * route: /systems/{sysid}/controlstreams/{csid}/commands
+     * route: /controlstreams/{csid}/commands
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<JSON>>} - result as JSON
      */
     async searchCommands(commandFilter = new CommandFilter(), pageSize= 10) {
         return new ObservationsCollection(
-            this.baseUrl() + API.controlstreams.commands.replace('{sysid}',
-                this.properties['system@id']).replace('{csid}',this.properties.id),
+            this.baseUrl() + API.controlstreams.commands
+                .replace('{csid}',this.properties.id),
             this.getHeaders(),
             commandFilter,
             pageSize,
@@ -66,18 +66,20 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      * Stream all commands received by a particular control interface
-     * route: /systems/{sysid}/controlstreams/{csid}/commands
+     * route: /controlstreams/{csid}/commands
      * @param {ControlStreamFilter} [controlStreamFilter= new ControlStreamFilter()] - default ControlStreamStream filter
      * @param {Function} callback - A callback to get observations
      */
     streamCommands(controlStreamFilter = new ControlStreamFilter(), callback = function(){}) {
         this.stream().onMessage = async (message) => {
-            const dataBlock = await this.conSysApiResultControlStreamParser.parseDataBlock(message,controlStreamFilter.props.format);
+            const dataBlock = await this.conSysApiResultControlStreamParser
+                .parseDataBlock(message,controlStreamFilter.props.format);
             callback(dataBlock);
         };
 
         this.stream().doRequest(
-            API.controlstreams.commands.replace('{sysid}',this.properties['system@id']).replace('{csid}',this.properties.id),
+            API.controlstreams.commands
+                .replace('{csid}',this.properties.id),
             controlFilter.toQueryString(),
             'arraybuffer'
         );
@@ -85,14 +87,13 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      * Get a specific command resource by ID.
-     * route: /systems/{sysid}/controlstreams/{csid}/commands/{cmdid}
+     * route: /controlstreams/{csid}/commands/{cmdid}
      * @param {String} commandId - the ID of the Command resource
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter
      * @returns {Promise<Command>} - The corresponding Command
      */
     async getCommandById(commandId,commandFilter = new CommandFilter()) {
         const apiUrl = API.controlstreams.command_by_id
-            .replace('{sysid}',this.properties['system@id'])
             .replace('{csid}', this.properties.id)
             .replace('{cmdid}', commandId);
         const queryString = commandFilter.toQueryString(['select', 'obsFormat']); //TODO: check useless obsFormat
@@ -102,45 +103,43 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      *  Send a new command to this control interface
-     *  route: /systems/{sysid}/controlstreams/{csid}/commands
+     *  route: /controlstreams/{csid}/commands
      * @param {JSON} jsonPayload - the JSON payload
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter specifying the 'sysid' and 'csid'
      */
     postCommand(jsonPayload, commandFilter = new CommandFilter()) {
         const apiUrl =  API.controlstreams.commands
-                .replace('{sysid}',this.properties['system@id'])
                 .replace('{csid}', this.properties.id);
         this.postAsJson(apiUrl, jsonPayload);
     }
 
     /**
      * Send a new command to this control interface using streaming protocol such like WS or MQTT
-     * route: /systems/{sysid}/controlstreams/{csid}/commands
+     * route: /controlstreams/{csid}/commands
      * @param {JSON} jsonPayload - the JSON payload
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter specifying the 'sysid' and 'csid'
      */
     publishCommand(payload, commandFilter = new CommandFilter()) {
-        this.stream().publishRequest(
-            API.controlstreams.commands
-                .replace('{sysid}',this.properties['system@id'])
-                .replace('{csid}', this.properties.id),
+        this.stream().publishRequest(API.controlstreams.commands
+            .replace('{csid}', this.properties.id),
             payload
         );
     }
 
     /**
      * Get all status messages sent by this control interface
-     * route: /systems/{sysid}/controlstreams/{csid}/status
+     * route: /controlstreams/{csid}/status
      * @param {ControlStreamFilter} [controlStreamFilter=new ControlStreamFilter()] - default ControlStream filter
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<JSON>>} - A Collection of JSON
      */
     async searchStatus(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
         return new Collection(
-            this.baseUrl() + API.controlstreams.status.replace('{sysid}',this.properties['system@id']).replace('{csid}',
-                this.properties.id),
+        this.baseUrl() + API.controlstreams.status
+            .replace('{csid}',
+            this.properties.id),
             this.getHeaders(),
-                controlStreamFilter,
+            controlStreamFilter,
             pageSize,
             this.conSysApiControlStreamStatusParser
         );
@@ -148,7 +147,7 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      * Stream all status messages sent by this control interface
-     * route: /systems/{sysid}/controlstreams/{csid}/status
+     * route: /controlstreams/{csid}/status
      * @param {ControlStreamFilter} [controlStreamFilter= new ControlStreamFilter()] - default ControlStream filter
      * @param {Function} callback - A callback to get observations
      */
@@ -159,7 +158,7 @@ class ControlStream extends ConnectedSystemsApi {
         };
 
         this.stream().doRequest(
-            API.controlstreams.status.replace('{sysid}',this.properties['system@id']).replace('{csid}',this.properties.id),
+            API.controlstreams.status.replace('{csid}',this.properties.id),
             controlStreamFilter.toQueryString(),
             'arraybuffer'
         );
@@ -167,12 +166,12 @@ class ControlStream extends ConnectedSystemsApi {
 
     /**
      * Get the detailed schema of command messages in a command stream
-     * route: /systems/{sysid}/controlstreams/{csid}/schema
+     * route: /controlstreams/{csid}/schema
      * @param {ControlStreamFilter} [controlStreamFilter= new ControlStreamFilter()] - default ControlStream filter, using 'commandFormat' to select response format
      * @returns {Promise<JSON>} - The schema as JSON
      */
     async getSchema(controlStreamFilter = new ControlStreamFilter()) {
-        const apiUrl = API.controlstreams.schema.replace('{sysid}',this.properties['system@id']).replace('{csid}',this.properties.id);
+        const apiUrl = API.controlstreams.schema.replace('{csid}',this.properties.id);
         const queryString = controlStreamFilter.toQueryString(['select', 'commandFormat']);
         return this.fetchAsJson(apiUrl, queryString);
     }

@@ -35,7 +35,7 @@ class Command extends ConnectedSystemsApi {
     constructor(properties, networkProperties) {
         super(networkProperties); // network properties
         this.properties = properties;
-        this.jsonParser = new SweCollectionDataParser(networkProperties);
+        this.jsonParser = new SweCollectionDataParser();
         this.sweParser = new ConSysApiResultControlStreamParser(this);
     }
 

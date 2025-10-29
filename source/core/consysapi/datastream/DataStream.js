@@ -51,7 +51,7 @@ class DataStream extends ConnectedSystemsApi {
         this.stream().onMessage = async (message) => {
             const dataBlock = await this.conSysApiResultParser.parseDataBlock(message,observationFilter.props.format);
             callback(dataBlock);
-        }
+        };
 
         return this.stream().doRequest(
             API.datastreams.observations.replace('{id}',this.properties.id),
