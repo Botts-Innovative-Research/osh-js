@@ -43,7 +43,7 @@ class ConSysApiResultParser  {
                 this.parsers[format].schemaPromise = new Promise(async (resolve, reject) => {
                     try {
                         const jsonSchema = await this.dataObject.getSchema(new ConnectedSystemsApiFilter({
-                            // obsFormat: format
+                            obsFormat: format
                         }));
                         this.init(jsonSchema, format);
                         resolve();

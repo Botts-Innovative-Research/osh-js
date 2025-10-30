@@ -1,5 +1,9 @@
 # Changelog
 
+## **3.1.2**
+### Fixes
+- Uncomment `obsFormat` in `parseDataBlock()` which broke live data streams.
+
 ## **3.1.1**
 ### Fixes
 - Add headers to collection requests made using the Connected Systems API. This fixes authentication issues when collection requests are made.
