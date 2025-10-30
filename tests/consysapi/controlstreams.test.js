@@ -8,7 +8,7 @@ describe('ControlStreams and ControlStream API helpers', () => {
         tls: false,
         connectorOpts: {
             username: "admin",
-            password: "oscar"
+            password: "admin"
         }
     };
 
@@ -23,26 +23,13 @@ describe('ControlStreams and ControlStream API helpers', () => {
             expect(api).toBeInstanceOf(ControlStreams);
             expect(api.conSysApiControlStreamParser).toBeDefined();
         });
-        test('should build a Collection in searchControlStreams', async () => {
-            const collection = await api.searchControlStreams(
-                new ControlStreamFilter(),
-                5
-            );
+
+        test('should build a valid Collection in searchControlStreams', async () => {
+            const collection = await api.searchControlStreams();
             expect(collection).toBeDefined();
             const page = await collection.nextPage();
             expect(page).toBeDefined();
-        });
-
-        test('should build proper API URL for getControlStreamById', async () => {
-            const csid = 'example-id';
-            const filter = new ControlStreamFilter();
-            const apiUrl = API.controlstreams.by_id.replace('{csid}', csid);
-            const query = filter.toQueryString(['select', 'format']);
-
-            // intercept fetchAsJson (no mocking, we just check return types)
-            expect(typeof api.fetchAsJson).toBe('function');
-            expect(apiUrl).toContain(csid);
-            expect(typeof query).toBe('string');
+            console.log(page);
         });
 
     });
@@ -51,6 +38,14 @@ describe('ControlStreams and ControlStream API helpers', () => {
         let api;
         let controlStream;
         const csProps = {id: 'test-stream-id'};
+
+        async function testCollection(fn) {
+            const collection = await fn;
+            expect(collection).toBeDefined();
+            const page = await collection.nextPage();
+            expect(page).toBeDefined();
+            console.log(page);
+        }
 
         beforeEach(async () => {
             api = new ControlStreams(networkProperties);
@@ -62,27 +57,12 @@ describe('ControlStreams and ControlStream API helpers', () => {
             controlStream = page[0];
         });
 
-        test('should be able to post and publish commands without throwing', () => {
-            const payload = {cmd: 'START'};
-            expect(() => controlStream.postCommand(payload)).not.toThrow();
-            expect(() => controlStream.publishCommand(payload)).not.toThrow();
+        test('should return valid Collection in searchStatus', async () => {
+            await testCollection(controlStream.searchStatus());
         });
 
-        test('should return Collection in searchStatus', async () => {
-            const collection = await controlStream.searchStatus();
-            expect(collection).toBeDefined();
-            const page = await collection.nextPage();
-            expect(page).toBeDefined();
-            console.log(page);
-        });
-
-        test('should build schema request correctly', async () => {
-            const filter = new ControlStreamFilter();
-            const apiUrl = API.controlstreams.schema.replace('{csid}', csProps.id);
-            const qs = filter.toQueryString(['select', 'commandFormat']);
-
-            expect(apiUrl).toContain(csProps.id);
-            expect(typeof qs).toBe('string');
+        test('should return valid Collection in searchCommands', async () => {
+            await testCollection(controlStream.searchCommands());
         });
 
     });

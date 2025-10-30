@@ -5,6 +5,10 @@ class ConSysApiResultParser  {
     constructor(dataObject) {
         this.dataObject = dataObject;
         this.parsers = {
+            'application/json': {
+                schemaPromise: undefined,
+                parser: undefined
+            },
             'application/om+json' : {
                 schemaPromise: undefined,
                 parser: undefined
@@ -39,7 +43,7 @@ class ConSysApiResultParser  {
                 this.parsers[format].schemaPromise = new Promise(async (resolve, reject) => {
                     try {
                         const jsonSchema = await this.dataObject.getSchema(new ConnectedSystemsApiFilter({
-                            obsFormat: format
+                            // obsFormat: format
                         }));
                         this.init(jsonSchema, format);
                         resolve();
@@ -57,7 +61,7 @@ class ConSysApiResultParser  {
     }
 
     init(schema, format) {
-        throw new Error('Unsupported Operation')
+        throw new Error('Unsupported Operation');
     }
 
     async parseDataBlock(arrayBuffer, format = 'application/om+json') {

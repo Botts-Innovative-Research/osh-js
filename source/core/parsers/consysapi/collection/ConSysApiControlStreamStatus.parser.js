@@ -11,9 +11,18 @@ class ConSysApiControlStreamStatusParser extends ConSysApiCollectionObjectParser
         if(format === 'arraybuffer') {
             res = this.textDecoder.decode(data);
         } else {
-            res = JSON.parse(data);
+            res = data;
         }
-        return JSON.parse(res);
+
+        if (typeof res === 'string') {
+            try {
+                res = JSON.parse(res);
+            } catch (e) {
+                console.warn('Failed to parse JSON:', e);
+            }
+        }
+
+        return res;
     }
 }
 

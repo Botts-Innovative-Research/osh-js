@@ -32,12 +32,11 @@ class ObservationFilter extends ConnectedSystemsApiFilter {
         super({
             phenomenonTime: undefined,
             resultTime: undefined,
+            dataStream: undefined,
+            system: undefined,
             foi: undefined,
-            select: undefined,
-            bbox: undefined,
-            location: undefined,
+            observedProperty: undefined,
             format: 'application/om+json',
-            replaySpeed: undefined,
             ...properties // merge defined properties
         });
     }
