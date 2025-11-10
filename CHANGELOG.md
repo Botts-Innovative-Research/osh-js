@@ -1,5 +1,9 @@
 # Changelog
 
+## **3.1.3**
+### Fixes
+Fixed DataStream stream connector using MQTT `shared` property.
+
 ## **3.1.2**
 ### Fixes
 - Uncomment `obsFormat` in `parseDataBlock()` which broke live data streams.
