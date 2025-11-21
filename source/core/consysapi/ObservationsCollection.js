@@ -21,7 +21,7 @@ class ObservationsCollection extends Collection {
      *
      */
     constructor(url, headers, filter, pageSize, parser, pageOffset) {
-        super(url, headers, filter, pageSize, parser, 'arraybuffer', pageOffset);
+        super(url, headers, filter, pageSize, parser, pageOffset,'arraybuffer');
     }
 
     async parseResponse(encodedResponse) {

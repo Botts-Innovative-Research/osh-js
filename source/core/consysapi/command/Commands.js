@@ -39,6 +39,7 @@ class Commands extends ConnectedSystemsApi {
      * List or search all commands available through this API.
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter
      * @param {Number} [pageSize=10] - default page size
+     * @param {Number} [pageOffset=0] - default page offset
      * @return {Promise<Collection<Command>>} - A Collection of Command
      */
     async searchCommands(commandFilter = new CommandFilter(), pageSize= 10, pageOffset = 0) {
