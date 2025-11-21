@@ -31,7 +31,7 @@ class Collection {
         this.total = 0;
         this.collectionDataParser = new SweCollectionDataParser(filter.props.format);
         this.responseFormat = responseFormat;
-        this.currentPage = Math.floor(this.pageOffset / this.pageSize);
+        this.currentPage = 0;
     }
 
     /**
