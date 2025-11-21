@@ -87,9 +87,9 @@ class Collection {
      */
     async nextPage() {
         if (this.hasNext()) {
-            this.currentPage++;
             this.pageOffset = this.currentPage * this.pageSize;
             const data = await this.fetchData();
+            this.currentPage++;
             if (data.length === 0 || data.length < this.pageSize) {
                 this.pageOffset = -1;
             }
