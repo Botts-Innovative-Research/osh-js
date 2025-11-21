@@ -43,13 +43,15 @@ class SamplingFeatures extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<SamplingFeatures>>} - A Collection of SamplingFeatures
      */
-    async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10) {
+    async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.samplingFeatures.search,
             this.getHeaders(),
             samplingFeatureFilter,
             pageSize,
-            this.conSysApiFetchSamplingFeatureParser);
+            this.conSysApiFetchSamplingFeatureParser,
+            pageOffset
+        );
     }
 
     /**

@@ -20,13 +20,13 @@ class Collection {
     /**
      *
      */
-    constructor(url, headers, filter, pageSize, parser, responseFormat = 'json') {
+    constructor(url, headers, filter, pageSize, parser, responseFormat = 'json', pageOffset = 0) {
         this.url = url;
         this.headers = headers;
         this.filter = filter;
         this.pageSize = pageSize;
         this.parser = parser;
-        this.pageOffset = 0;
+        this.pageOffset = pageOffset;
         this.init = false;
         this.total = 0;
         this.collectionDataParser = new SweCollectionDataParser(filter.props.format);
@@ -42,8 +42,8 @@ class Collection {
         return this.pageOffset !== -1;
     }
 
-    async fetchData(offset) {
-        const queryString = `${this.filter.toQueryString()}&offset=${offset}&limit=${this.pageSize}`;
+    async fetchData() {
+        const queryString = `${this.filter.toQueryString()}&offset=${this.pageOffset}&limit=${this.pageSize}`;
         const fullUrl = this.url + '?' + queryString;
         const headers = this.headers ?? {};
 

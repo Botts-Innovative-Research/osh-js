@@ -43,13 +43,15 @@ class Systems extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<System>>} - A collection of System
      */
-    async searchSystems(systemFilter = new SystemFilter(), pageSize = 10) {
+    async searchSystems(systemFilter = new SystemFilter(), pageSize = 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.search,
             this.getHeaders(),
             systemFilter,
             pageSize,
-            this.conSysApiFetchSystemParser);
+            this.conSysApiFetchSystemParser,
+            pageOffset
+        );
     }
 
     /**

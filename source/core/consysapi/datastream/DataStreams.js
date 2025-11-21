@@ -41,13 +41,14 @@ class DataStreams extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<DataStream>>} - A Collection of DataStream
      */
-    async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10) {
+    async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.datastreams.search,
             this.getHeaders(),
             dataStreamFilter,
             pageSize,
-            this.conSysApiDataStreamParser
+            this.conSysApiDataStreamParser,
+            pageOffset
         );
     }
 

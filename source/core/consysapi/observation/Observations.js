@@ -41,13 +41,14 @@ class Observations extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<Observation>>} - A Collection of Observation
      */
-    async searchObservations(observationFilter = new ObservationFilter(), pageSize= 10) {
+    async searchObservations(observationFilter = new ObservationFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.observations.search,
             this.getHeaders(),
             observationFilter,
             pageSize,
-            this.conSysApiFetchObservationParser
+            this.conSysApiFetchObservationParser,
+            pageOffset
         );
     }
 

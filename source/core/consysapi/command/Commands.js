@@ -41,13 +41,14 @@ class Commands extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<Command>>} - A Collection of Command
      */
-    async searchCommands(commandFilter = new CommandFilter(), pageSize= 10) {
+    async searchCommands(commandFilter = new CommandFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.commands.search,
             this.getHeaders(),
             commandFilter,
             pageSize,
-            this.conSysApiCommandParser
+            this.conSysApiCommandParser,
+            pageOffset
         );
     }
 

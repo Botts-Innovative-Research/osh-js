@@ -41,13 +41,14 @@ class ControlStreams extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<ControlStream>>} - A Collection of ControlStream
      */
-    async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
+    async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.controlstreams.search,
             this.getHeaders(),
             controlStreamFilter,
             pageSize,
-            this.conSysApiControlStreamParser
+            this.conSysApiControlStreamParser,
+            pageOffset
         );
     }
 
