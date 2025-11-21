@@ -60,6 +60,30 @@ describe('Observation and Observation API helpers', () => {
             expect(observation).toBeDefined();
         });
 
+
+        test('Should return later observations when using an; offset', async () => {
+            api = new Observations(networkProperties);
+
+            const firstCollection = await api.searchObservations(undefined, 10, 0);
+            const firstPage = await firstCollection.nextPage();
+            expect(firstPage.length).toBeGreaterThan(0);
+
+            const secondCollection = await api.searchObservations(undefined, 10, 10);
+            const secondPage = await secondCollection.nextPage();
+            expect(secondPage.length).toBeGreaterThan(0);
+
+
+            if (firstPage[0].properties.resultTime && secondPage[0].properties.resultTime) {
+                // check that both have a result time
+
+                const firstPageObs = firstPage[0];
+                const secondPageObs = secondPage[0];
+                expect(secondPageObs.properties.resultTime >= firstPageObs.properties.resultTime).toBe(true);
+            }
+
+            console.log("Offset check test pages, ", {firstPage, secondPage});
+
+        });
     });
 
 });
