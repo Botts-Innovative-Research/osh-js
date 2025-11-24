@@ -1,5 +1,9 @@
 # Changelog
 
+## **3.1.4**
+### Fixes
+Allow specification of page offset in collection requests.
+
 ## **3.1.3**
 ### Fixes
 Fixed DataStream stream connector using MQTT `shared` property.
