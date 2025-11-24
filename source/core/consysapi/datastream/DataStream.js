@@ -68,13 +68,14 @@ class DataStream extends ConnectedSystemsApi {
      * @param {DataSourceParser} [parser=new ConSysApiResultParser()] - default observations parser
      * @return {Collection<JSON>} - result observations as JSON
      */
-    async searchObservations(observationFilter = new ObservationFilter(),  pageSize= 10, parser = this.conSysApiResultParser) {
+    async searchObservations(observationFilter = new ObservationFilter(),  pageSize= 10, pageOffset=0) {
         return new ObservationsCollection(
             this.baseUrl() + API.datastreams.observations.replace('{id}',this.properties.id),
             this.getHeaders(),
             observationFilter,
             pageSize,
-            this.conSysApiResultCollectionDatastreamParser
+            this.conSysApiResultCollectionDatastreamParser,
+            pageOffset
         );
     }
 
