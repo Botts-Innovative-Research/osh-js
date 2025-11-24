@@ -1,5 +1,9 @@
 # Changelog
 
+## **3.1.5**
+### Fixes
+Add forgotten offset parameter to `DataStream`'s `searchObservations()` method
+
 ## **3.1.4**
 ### Fixes
 Allow specification of page offset in collection requests.
