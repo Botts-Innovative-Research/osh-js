@@ -51,16 +51,18 @@ class ControlStream extends ConnectedSystemsApi {
      * route: /controlstreams/{csid}/commands
      * @param {CommandFilter} [commandFilter=new CommandFilter()] - default Command filter
      * @param {Number} [pageSize=10] - default page size
+     * @param {Number} [pageOffset=0] - default page offset
      * @return {Promise<Collection<JSON>>} - result as JSON
      */
-    async searchCommands(commandFilter = new CommandFilter(), pageSize= 10) {
+    async searchCommands(commandFilter = new CommandFilter(), pageSize= 10, pageOffset = 0) {
         return new ObservationsCollection(
             this.baseUrl() + API.controlstreams.commands
                 .replace('{csid}',this.properties.id),
             this.getHeaders(),
             commandFilter,
             pageSize,
-            this.conSysApiResultCollectionControlStreamParser
+            this.conSysApiResultCollectionControlStreamParser,
+            pageOffset
         );
     }
 
@@ -133,7 +135,7 @@ class ControlStream extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<JSON>>} - A Collection of JSON
      */
-    async searchStatus(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
+    async searchStatus(controlStreamFilter = new ControlStreamFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
         this.baseUrl() + API.controlstreams.status
             .replace('{csid}',
@@ -141,7 +143,8 @@ class ControlStream extends ConnectedSystemsApi {
             this.getHeaders(),
             controlStreamFilter,
             pageSize,
-            this.conSysApiControlStreamStatusParser
+            this.conSysApiControlStreamStatusParser,
+            pageOffset
         );
     }
 

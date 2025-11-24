@@ -69,13 +69,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<System>>} - A collection of System
      */
-    async searchSubSystems(systemFilter = new SystemFilter(), pageSize = 10) {
+    async searchSubSystems(systemFilter = new SystemFilter(), pageSize = 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.subsystems.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             systemFilter,
             pageSize,
-            this.conSysApiFetchSystemParser
+            this.conSysApiFetchSystemParser,
+            pageOffset
         );
     }
 
@@ -86,13 +87,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<DataStream>>}  - A collection of DataStream
      */
-    async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10) {
+    async searchDataStreams(dataStreamFilter = new DataStreamFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.datastreams.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             dataStreamFilter,
             pageSize,
-            this.conSysApiDataStreamParser
+            this.conSysApiDataStreamParser,
+            pageOffset
         );
     }
 
@@ -103,13 +105,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<SamplingFeature>>} - A collection of SamplingFeature
      */
-    async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10) {
+    async searchSamplingFeatures(samplingFeatureFilter = new SamplingFeatureFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.samplingFeatures.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             samplingFeatureFilter,
             pageSize,
-            this.conSysApiFetchSamplingFeatureParser
+            this.conSysApiFetchSamplingFeatureParser,
+            pageOffset
         );
     }
 
@@ -120,13 +123,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<ControlStream>>} - A collection of ControlStream
      */
-    async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10) {
+    async searchControlStreams(controlStreamFilter = new ControlStreamFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.controlstreams.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             controlStreamFilter,
             pageSize,
-            this.conSysApiFetchControlStreamParser
+            this.conSysApiFetchControlStreamParser,
+            pageOffset
         );
     }
 
@@ -151,13 +155,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<Event>>} - A collection of Event
      */
-    async searchEvents(eventFilter = new EventFilter(), pageSize= 10) {
+    async searchEvents(eventFilter = new EventFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.events.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             eventFilter,
             pageSize,
-            this.conSysApiFetchEventParser
+            this.conSysApiFetchEventParser,
+            pageOffset
         );
     }
 
@@ -168,13 +173,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<System>>} - A collection of System
      */
-    async searchHistory(systemHistoryFilter = new SystemHistoryFilter(), pageSize= 10) {
+    async searchHistory(systemHistoryFilter = new SystemHistoryFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.history.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             systemHistoryFilter,
             pageSize,
-            this.conSysApiFetchSystemParser
+            this.conSysApiFetchSystemParser,
+            pageOffset
         );
     }
 
@@ -185,13 +191,14 @@ class System extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<System>>} - A collection of System
      */
-    async searchMembers(systemFilter = new SystemFilter(), pageSize= 10) {
+    async searchMembers(systemFilter = new SystemFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.systems.members.replace('{sysid}',this.properties.id),
             this.getHeaders(),
             systemFilter,
             pageSize,
-            this.conSysApiFetchSystemParser
+            this.conSysApiFetchSystemParser,
+            pageOffset
         );
     }
 }

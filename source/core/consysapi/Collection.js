@@ -20,13 +20,13 @@ class Collection {
     /**
      *
      */
-    constructor(url, headers, filter, pageSize, parser, responseFormat = 'json') {
+    constructor(url, headers, filter, pageSize, parser,  pageOffset = 0, responseFormat = 'json') {
         this.url = url;
         this.headers = headers;
         this.filter = filter;
         this.pageSize = pageSize;
         this.parser = parser;
-        this.pageOffset = 0;
+        this.pageOffset = pageOffset;
         this.init = false;
         this.total = 0;
         this.collectionDataParser = new SweCollectionDataParser(filter.props.format);
@@ -42,8 +42,8 @@ class Collection {
         return this.pageOffset !== -1;
     }
 
-    async fetchData(offset) {
-        const queryString = `${this.filter.toQueryString()}&offset=${offset}&limit=${this.pageSize}`;
+    async fetchData() {
+        const queryString = `${this.filter.toQueryString()}&offset=${this.pageOffset}&limit=${this.pageSize}`;
         const fullUrl = this.url + '?' + queryString;
         const headers = this.headers ?? {};
 
@@ -89,7 +89,7 @@ class Collection {
         if (this.hasNext()) {
             this.currentPage++;
             this.pageOffset = this.currentPage * this.pageSize;
-            const data = await this.fetchData(this.pageOffset);
+            const data = await this.fetchData();
             if (data.length === 0 || data.length < this.pageSize) {
                 this.pageOffset = -1;
             }
@@ -102,7 +102,7 @@ class Collection {
     async page(page) {
         this.currentPage = page;
         this.pageOffset = this.currentPage * this.pageSize;
-        const data = await this.fetchData(this.pageOffset);
+        const data = await this.fetchData();
         if (data.length === 0 || data.length < this.pageSize) {
             this.pageOffset = -1;
         }
@@ -118,7 +118,7 @@ class Collection {
         if (this.hasPrevious()) {
             this.currentPage--;
             this.pageOffset = this.currentPage * this.pageSize;
-            return this.fetchData(this.pageOffset);
+            return this.fetchData();
         } else {
             throw Error('Has no more pages');
         }

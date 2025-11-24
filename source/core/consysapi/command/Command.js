@@ -46,7 +46,7 @@ class Command extends ConnectedSystemsApi {
      * @param {Number} [pageSize=10] - default page size
      * @return {Promise<Collection<JSON>>} - response as JSON
      */
-    async searchStatus(commandFilter = new CommandFilter(), pageSize= 10) {
+    async searchStatus(commandFilter = new CommandFilter(), pageSize= 10, pageOffset = 0) {
         return new Collection(
             this.baseUrl() + API.commands.status.replace('{sysid}',this.properties['system@id'])
                                .replace('{csid}', this.properties['controlstream@id'])
@@ -54,7 +54,8 @@ class Command extends ConnectedSystemsApi {
             this.getHeaders(),
             commandFilter,
             pageSize,
-            this.jsonParser
+            this.jsonParser,
+            pageOffset
         );
     }
 
