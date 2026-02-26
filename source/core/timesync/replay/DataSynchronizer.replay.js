@@ -15,7 +15,6 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {assertDefined, isDefined, randomUUID} from "../../utils/Utils.js";
-import DataSynchronizerWorker from './DataSynchronizer.replay.worker.js';
 import {DATA_SYNCHRONIZER_TOPIC, TIME_SYNCHRONIZER_TOPIC} from "../../Constants.js";
 import {Mode} from "../../datasource/Mode";
 import {EventType} from "../../event/EventType";
@@ -255,7 +254,7 @@ class DataSynchronizerReplay {
                 const dataSourceForWorker = await this.createDataSourceForWorker(dataSource);
                 dataSourcesForWorker.push(dataSourceForWorker);
             }
-            this.synchronizerWorker = new WorkerExt(new DataSynchronizerWorker());
+            this.synchronizerWorker = new WorkerExt(new Worker(new URL('./DataSynchronizer.replay.worker.js', import.meta.url)));
             return this.synchronizerWorker.postMessageWithAck({
                 message: 'init',
                 dataSources: dataSourcesForWorker,
