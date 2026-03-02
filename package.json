@@ -2,7 +2,7 @@
   "name": "osh-js",
   "version": "3.1.5",
   "description": "OSH javascript Toolkit",
-  "main": "core/OSH.js",
+  "main": "source/core/OSH.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/opensensorhub/osh-js.git"
