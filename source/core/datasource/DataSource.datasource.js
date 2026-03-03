@@ -86,7 +86,7 @@ class DataSource {
 
     //----------- ASYNCHRONOUS FUNCTIONS -----------------//
     createWorker(properties) {
-        return new WorkerExt(new Worker(new URL('./worker/DataSource.worker.js', import.meta.url)));
+        return new WorkerExt(new Worker(new URL('./worker/DataSource.worker.js', import.meta.url), { type: 'module' }));
     }
 
     /**

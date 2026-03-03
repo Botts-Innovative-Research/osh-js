@@ -87,7 +87,7 @@ class DataSynchronizerRealtime {
                 const dataSourceForWorker = await this.createDataSourceForWorker(dataSource);
                 dataSourcesForWorker.push(dataSourceForWorker);
             }
-            this.synchronizerWorker = new WorkerExt(new Worker(new URL('./DataSynchronizer.realtime.worker.js', import.meta.url)));
+            this.synchronizerWorker = new WorkerExt(new Worker(new URL('./DataSynchronizer.realtime.worker.js', import.meta.url), { type: 'module' }));
             return this.synchronizerWorker.postMessageWithAck({
                 message: 'init',
                 dataSources: dataSourcesForWorker,

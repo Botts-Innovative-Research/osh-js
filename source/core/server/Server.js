@@ -149,7 +149,7 @@ class Server {
      */
     executeGetRequestWebWorker(request, successCallback, errorCallback, fromJson = false) {
         // create worker source code blob if not created yet
-        let worker = new Worker(new URL('./GetRequest.worker.js', import.meta.url));
+        let worker = new Worker(new URL('./GetRequest.worker.js', import.meta.url), { type: 'module' });
         worker.onerror = (e) => {
             worker.terminate();
             errorCallback("Internal error in worker: " + e.message);

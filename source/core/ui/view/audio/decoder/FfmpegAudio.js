@@ -6,7 +6,7 @@ class FfmpegAudio {
         this.codec = properties.codec;
 
         try {
-            this.audioDecoderWorker = new Worker(new URL('./workers/ffmpeg.decode.audio.worker.js', import.meta.url));
+            this.audioDecoderWorker = new Worker(new URL('./workers/ffmpeg.decode.audio.worker.js', import.meta.url), { type: 'module' });
             // const drawWorker = new DrawWorker();
             this.audioDecoderWorker.id = randomUUID();
 

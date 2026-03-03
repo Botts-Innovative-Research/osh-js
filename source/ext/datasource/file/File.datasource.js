@@ -49,7 +49,7 @@ class FileDataSource extends DataSource {
 
 
     createWorker(properties) {
-        return new WorkerExt(new Worker(new URL('../worker/DataSource.file.worker.js', import.meta.url)));
+        return new WorkerExt(new Worker(new URL('../worker/DataSource.file.worker.js', import.meta.url), { type: 'module' }));
     }
 }
 

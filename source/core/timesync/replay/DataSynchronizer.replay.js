@@ -254,7 +254,7 @@ class DataSynchronizerReplay {
                 const dataSourceForWorker = await this.createDataSourceForWorker(dataSource);
                 dataSourcesForWorker.push(dataSourceForWorker);
             }
-            this.synchronizerWorker = new WorkerExt(new Worker(new URL('./DataSynchronizer.replay.worker.js', import.meta.url)));
+            this.synchronizerWorker = new WorkerExt(new Worker(new URL('./DataSynchronizer.replay.worker.js', import.meta.url), { type: 'module' }));
             return this.synchronizerWorker.postMessageWithAck({
                 message: 'init',
                 dataSources: dataSourcesForWorker,
