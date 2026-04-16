@@ -17,7 +17,14 @@
 import SweApiContext from "./SweApi.context";
 import Control from "../../../sweapi/control/Control";
 import DataStream from "../../../sweapi/datastream/DataStream";
+import {Status} from "../../../connector/Status.js";
 import {isDefined} from "../../../utils/Utils";
+
+const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 class SweApiRealTimeContext extends SweApiContext {
     init(properties) {
@@ -60,10 +67,65 @@ class SweApiRealTimeContext extends SweApiContext {
                 }
             }
         }
-        this.streamObject.stream().onChangeStatus = this.onChangeStatus.bind(this);
+
+            if (isDefined(this.streamObject)) {
+               this.streamObject.stream().onChangeStatus = this.onStreamConnectorStatus.bind(this);
+            }
+        }
+    /**
+     * When the observation stream reconnects, pull the last observation again so map layers stay in sync.
+     */
+    onStreamConnectorStatus(status) {
+        if (this.onChangeStatus) {
+            this.onChangeStatus(status);
+        }
+        if (status === Status.CONNECTED && this.streamObject && this.streamObject.searchObservations) {
+            this.scheduleFetchLatestObservations();
+        }
     }
+
+    scheduleFetchLatestObservations() {
+        if (this._fetchLatestDebounce) {
+            clearTimeout(this._fetchLatestDebounce);
+        }
+        this._fetchLatestDebounce = setTimeout(() => {
+            this._fetchLatestDebounce = undefined;
+            this.fetchLatestObservationsWithRetry();
+        }, 150);
+    }
+
+    async fetchLatestObservationsWithRetry() {
+        if (!this.streamObject || !this.streamObject.searchObservations) {
+            return;
+        }
+        const responseFormat = this.properties.responseFormat;
+        let lastErr;
+        for (let i = 0; i < FETCH_LATEST_RETRY_DELAYS_MS.length; i++) {
+            await delay(FETCH_LATEST_RETRY_DELAYS_MS[i]);
+            try {
+                const filter = this.createObservationFilter(this.properties);
+                filter.props.resultTime = 'latest';
+                const collection = await this.streamObject.searchObservations(filter);
+                const page = await collection.nextPage();
+                const data = page;
+                if (data && data.length) {
+                    data.forEach(d => {
+                        d.version = this.properties.version;
+                    });
+                    this.handleData(data, responseFormat);
+                    return;
+                }
+            } catch (err) {
+                lastErr = err;
+            }
+        }
+        if (lastErr) {
+            console.error('[SweApiRealTimeContext] fetch latest observations failed after retries', lastErr);
+        }
+    }
+
     onStreamMessage(messages, format) {
-         // in case of om+json ,we have to add the timestamp which is not included for each record but at the root level
+         // in case of om+json, we have to add the timestamp which is not included for each record but at the root level
         let results = messages;
         let version = this.properties.version;
         for(let message of messages) {
@@ -74,6 +136,9 @@ class SweApiRealTimeContext extends SweApiContext {
 
     connect() {
         this.streamFunction();
+        if (this.streamObject && this.streamObject.searchObservations) {
+            this.scheduleFetchLatestObservations();
+        }
     }
 
     async disconnect() {
