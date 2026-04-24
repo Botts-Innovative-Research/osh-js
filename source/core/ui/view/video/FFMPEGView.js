@@ -142,10 +142,11 @@ class FFMPEGView extends CanvasView {
      * @private
      */
     initFFMPEG_DECODER_WORKER(codec) {
-        this.decoderWorker = new Worker(
+        const worker = new Worker(
             new URL('./workers/ffmpeg.decode.video.worker.js', import.meta.url),
             { type: 'module' }
         );
+        this.decoderWorker = new WorkerExt(worker);
         // const drawWorker = new DrawWorker();
         this.decodeWorker.id = randomUUID();
 

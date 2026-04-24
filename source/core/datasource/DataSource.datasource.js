@@ -86,10 +86,11 @@ class DataSource {
 
     //----------- ASYNCHRONOUS FUNCTIONS -----------------//
     createWorker(properties) {
-        return new Worker(
+        const worker = new Worker(
             new URL('./worker/DataSource.worker', import.meta.url),
             { type: 'module' }
         );
+        return new WorkerExt(worker);
     }
 
     /**
