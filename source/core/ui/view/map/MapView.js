@@ -42,6 +42,9 @@ class MapView extends View {
 
         // map Layer id to array of corresponding draping
         this.layerIdToDrapedImage= {};
+
+        // map Layer id to array of corresponding lobs
+        this.layerIdToLob= {};
     }
 
     async setData(dataSourceId, data) {
@@ -62,7 +65,9 @@ class MapView extends View {
                 this.updateCoPlanarPolygon(d);
             } else if(data.type === 'frustum') {
                 this.updateFrustum(d);
-            }
+            } else if(data.type === 'lob') {
+				this.updateLob(d);
+			}
         }
     }
 
@@ -77,7 +82,18 @@ class MapView extends View {
      * @param {Object} markerObject - the Map marker object
      */
     async addMarkerToLayer(props, markerObject) {
-        this.layerIdToMarkers[props.markerId] = markerObject;
+        // Use props.id for LoB
+        this.layerIdToMarkers[props.markerId ?? props.id] = markerObject;
+    }
+
+    /**
+     * Associate a LoB to a Layer for a fast lookup
+     * @protected
+     * @param {LoB.props} layer - the Layer object
+     * @param {Object} lobObject - the Map lob object
+     */
+    async addLobToLayer(props, lobObject) {
+        this.layerIdToLob[props.lobId] = lobObject;
     }
 
     /**
@@ -87,7 +103,8 @@ class MapView extends View {
      * @param {Object} polylineObject - the Map polyline object
      */
     async addPolylineToLayer(props, polylineObject) {
-        this.layerIdToPolylines[props.polylineId] = polylineObject;
+        // Use props.id for LoB
+        this.layerIdToPolylines[props.polylineId ?? props.id] = polylineObject;
     }
 
     /**
@@ -135,10 +152,11 @@ class MapView extends View {
      * @param {PointMarkerLayer.props} props - the Layer Object
      */
     getMarker(props) {
-        if(!(props.markerId in  this.layerIdToMarkers)) {
+        // Use props.id for LoB
+        if(!(props.markerId in this.layerIdToMarkers) && !(props.id in this.layerIdToMarkers)) {
             return null;
         }
-        return this.layerIdToMarkers[props.markerId];
+        return this.layerIdToMarkers[props.markerId ?? props.id];
     }
 
     /**
@@ -189,18 +207,6 @@ class MapView extends View {
      * @protected
      * @param {Ellipse.props} layer - the Layer Object
      */
-    getPolyline(props) {
-        if(!(props.polylineId in  this.layerIdToEllipsoids)) {
-            return null;
-        }
-        return this.layerIdToPolylines[props.polylineId];
-    }
-
-    /**
-     * Get the ellipse associate to the Layer
-     * @protected
-     * @param {Ellipse.props} layer - the Layer Object
-     */
     getEllipse(props) {
         if(!(props.ellipseId in  this.layerIdToEllipsoids)) {
             return null;
@@ -214,10 +220,11 @@ class MapView extends View {
      * @param {Polyline.props} layer - the Layer Object
      */
     getPolyline(props) {
-        if(!(props.polylineId in  this.layerIdToPolylines)) {
+        // Use props.id for LoB
+        if(!(props.polylineId in this.layerIdToPolylines) && !(props.id in this.layerIdToPolylines)) {
             return null;
         }
-        return this.layerIdToPolylines[props.polylineId];
+        return this.layerIdToPolylines[props.polylineId ?? props.id];
     }
 
     /**
@@ -338,6 +345,24 @@ class MapView extends View {
     }
 
     /**
+     * Remove the markers corresponding to a Lob Layer
+     * @param {LoB} layer - the layer to remove the markers from
+     */
+    removeLobs(layer) {
+        const ids = layer.getIds() || [];
+        for(let id of ids) {
+            const lob = this.layerIdToLob[id];
+            console.log(lob);
+            if (isDefined(lob)) {
+                this.removeLobFromLayer(lob);
+            }
+
+            // remove lobs ids from Layer map
+            delete this.layerIdToLob[id];
+        }
+    }
+
+    /**
      * Remove the ellipsoids corresponding to a EllipseLayer Layer
      * @param {Ellipse} ellipse - the layer to remove the ellipsoids from
      */
@@ -413,6 +438,14 @@ class MapView extends View {
     removeMarkerFromLayer(marker) {}
 
     /**
+     * Abstract method to remove a lob from its corresponding layer.
+     * This is library dependant.
+     * @protected
+     * @param {Object} lob - The lob object
+     */
+    removeLobFromLayer(lob) {}
+
+    /**
      * Abstract method to remove a polyline from its corresponding layer.
      * This is library dependant.
      * @protected
@@ -444,8 +477,8 @@ class MapView extends View {
      * @param {Object} event - the original Map View event
      */
     onMarkerLeftClick(markerId, markerObject, layer, event) {
-        if (isDefined(layer.props.onLeftClick)) {
-            layer.props.onLeftClick.call(layer,markerId, markerObject, event);
+        if (isDefined(layer.onLeftClick)) {
+            layer.onLeftClick.call(layer,markerId, markerObject, event);
         }
     }
 
@@ -457,8 +490,8 @@ class MapView extends View {
      * @param {Object} event - the original Map View event
      */
     onMarkerRightClick(markerId, markerObject, layer, event) {
-        if (isDefined(layer.props.onRightClick)) {
-            layer.props.onRightClick.call(layer,markerId, markerObject, event);
+        if (isDefined(layer.onRightClick)) {
+            layer.onRightClick.call(layer,markerId, markerObject, event);
         }
     }
 
@@ -483,8 +516,8 @@ class MapView extends View {
      * @param {Object} event - the original Map View event
      */
     onMarkerHover(markerId, markerObject, layer, event) {
-        if (isDefined(layer.props.onHover)) {
-            layer.props.onHover.call(layer,markerId, markerObject, event);
+        if (isDefined(layer.onHover)) {
+            layer.onHover.call(layer,markerId, markerObject, event);
         }
     }
 
@@ -519,12 +552,20 @@ class MapView extends View {
         return null;
     }
 
+	getLob(props) {
+		if(!(props.lobId in this.layerIdToLob)) {
+			return null;
+		}
+		return this.layerIdToLob[props.lobId];
+	}
+
     async updateMarker() {}
     async updatePolyline() {}
     async updatePolygon() {}
     async updateEllipse() {}
     async updateCoPlanarPolygon() {}
     async updateDrapedImage() {}
+	async updateLob() {}
 
 }
 

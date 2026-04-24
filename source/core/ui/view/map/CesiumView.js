@@ -35,7 +35,7 @@ import {
     RectangleGeometry,
     Rectangle,
     Primitive,
-    createDefaultImageryProviderViewModels,
+    // createDefaultImageryProviderViewModels,
     WebMapServiceImageryProvider,
     EllipsoidTerrainProvider,
     NearFarScalar,
@@ -124,7 +124,7 @@ class CesiumView extends MapView {
      */
     constructor(properties) {
         super({
-            supportedLayers: ['marker', 'drapedImage', 'polyline', 'ellipse', 'polygon', 'coplanarPolygon', 'frustum'],
+            supportedLayers: ['marker', 'drapedImage', 'polyline', 'ellipse', 'polygon', 'coplanarPolygon', 'frustum', 'lob'],
             autoZoomOnFirstMarker: true,
             ...properties
         });
@@ -243,7 +243,6 @@ class CesiumView extends MapView {
                     pitch : Math.toRadians(options.options.orientation.pitch),
                     roll : 0.0
                 }
-                console.log(cameraOpts.orientation)
             }
 
         }
@@ -350,6 +349,9 @@ class CesiumView extends MapView {
         };
 
         const onHover = (movement) => {
+            if (!movement) return;
+            /*console.log("[CesiumView] onHover movement: ", movement);
+            console.log("[CesiumView] Scene Object DEBUG: ", that.viewer.scene);*/
             const pickedFeature = that.viewer.scene.pick(movement.endPosition);
             if (!isDefined(pickedFeature) || !isDefined(pickedFeature.id)) {
                 return;
@@ -480,30 +482,30 @@ class CesiumView extends MapView {
 
         if(!isModel) {
             billboardOpts = {
-                id: undefined,
+                // id: undefined,
                 name: label,
-                description: undefined,
-                position: undefined,
+                // description: undefined,
+                // position: undefined,
                 image: properties.icon,
-                scaleByDistance: new NearFarScalar(1000, 1.0, 10e6, 0.0),
-                alignedAxis: (this.viewer.camera.pitch < -Math.PI / 4) && properties.allowBillboardRotation ? Cartesian3.UNIT_Z : Cartesian3.ZERO, // Z means rotation is from north
-                rotation: rot,
-                horizontalOrigin: HorizontalOrigin.LEFT,
-                verticalOrigin: VerticalOrigin.TOP,
-                pixelOffset: iconOffset,
-                pixelOffsetScaleByDistance: new NearFarScalar(1000, 1.0, 10e6, 0.0),
-                eyeOffset: new Cartesian3(0, 0, -1 * properties.zIndex), // make sure icon always displays in front,
-                show: properties.visible,
-                heightReference: properties.defaultToTerrainElevation ? HeightReference.CLAMP_TO_GROUND : HeightReference.NONE,
-                scale: properties.iconScale,
-                imageSubRegion: undefined,
-                color: color,
-                width: properties.iconSize[0],
-                height: properties.iconSize[1],
-                translucencyByDistance: undefined,
-                sizeInMeters: undefined,
-                distanceDisplayCondition: undefined,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY
+                scaleByDistance: new NearFarScalar(1000, 0.5, 100000, 0.3),
+                // alignedAxis: (this.viewer.camera.pitch < -Math.PI / 4) && properties.allowBillboardRotation ? Cartesian3.UNIT_Z : Cartesian3.ZERO, // Z means rotation is from north
+                // rotation: rot,
+                // horizontalOrigin: HorizontalOrigin.LEFT,
+                // verticalOrigin: VerticalOrigin.TOP,
+                // pixelOffset: iconOffset,
+                // pixelOffsetScaleByDistance: new NearFarScalar(1000, 1.0, 10e6, 0.0),
+                // eyeOffset: new Cartesian3(0, 0, -1 * properties.zIndex), // make sure icon always displays in front,
+                // show: properties.visible,
+                // heightReference: properties.defaultToTerrainElevation ? HeightReference.CLAMP_TO_GROUND : HeightReference.NONE,
+                // scale: properties.iconScale,
+                // // imageSubRegion: undefined,
+                // color: color,
+                // width: properties.iconSize[0],
+                // height: properties.iconSize[1],
+                // translucencyByDistance: undefined,
+                // sizeInMeters: undefined,
+                // distanceDisplayCondition: undefined,
+                // disableDepthTestDistance: Number.POSITIVE_INFINITY
             }
         } else {
             modelOpts = {
@@ -580,12 +582,13 @@ class CesiumView extends MapView {
             orientation: orientation,
             id: id,
             billboard: billboardOpts,
-            model: modelOpts,
+            // model: modelOpts,
             label: labelOpts
         };
 
         if(!isDefined(entity)) {
             const entity = this.viewer.entities.add(entityOpts)
+            console.log("[CesiumView] addMarker new Entity: ", entity);
 
             if (properties.selected) {
                 this.viewer.selectedEntity = entity;
@@ -626,6 +629,27 @@ class CesiumView extends MapView {
     removeMarkerFromLayer(entity, markerId) {
         this.viewer.entities.remove(entity);
         delete this.layerIdToMarkers[markerId]; // Added by TC- check with Mathieu
+        this.render();
+    }
+
+    // ----- LINE OF BEARING (LOB)
+    addLob(properties, entity= undefined) {
+        let marker = this.addMarker(properties, entity);
+        let polyline = this.addPolyline(properties);
+    }
+
+    async updateLob(props) {
+        if (!isDefined(props.location)) {
+            return;
+        }
+        this.updateMarker(props);
+        this.updatePolyline(props);
+        this.render();
+    }
+
+    removeLobFromLayer(entity, markerId) {
+        this.removeMarkerFromLayer(entity, markerId);
+        this.removePolylineFromLayer(entity)
         this.render();
     }
 
