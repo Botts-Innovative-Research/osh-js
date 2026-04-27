@@ -86,6 +86,8 @@ class DataSource {
 
     //----------- ASYNCHRONOUS FUNCTIONS -----------------//
     createWorker(properties) {
+        console.log("Creating worker in Datasource.datasource.js")
+        
         const worker = new Worker(
             new URL('./worker/DataSource.worker', import.meta.url),
             { type: 'module' }

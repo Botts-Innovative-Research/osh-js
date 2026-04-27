@@ -152,6 +152,8 @@ class Server {
     executeGetRequestWebWorker(request, successCallback, errorCallback, fromJson = false) {
         // create worker source code blob if not created yet
         // todo - update?
+        console.log("Creating worker in Server.js")
+
         let worker = new Worker();
         worker.onerror = (e) => {
             worker.terminate();

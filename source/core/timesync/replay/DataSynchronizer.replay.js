@@ -247,6 +247,7 @@ class DataSynchronizerReplay {
                 const dataSourceForWorker = await this.createDataSourceForWorker(dataSource);
                 dataSourcesForWorker.push(dataSourceForWorker);
             }
+            console.log("Creating worker in DataSynchronizer.replay.js")
             const worker = new Worker(
                 new URL('./DataSynchronizer.replay.worker.js', import.meta.url),
                 { type: 'module' }
