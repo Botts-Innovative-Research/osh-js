@@ -52,13 +52,9 @@
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.11.0",
     "empty-module": "0.0.2",
-<<<<<<< HEAD
     "file-loader": "^5.1.0",
     "jsdoc": "^4.0.3",
-=======
     "jest": "^30.2.0",
-    "jsdoc": "^3.6.4",
->>>>>>> origin/master
     "moment": "^2.24.0",
     "npm-install-webpack-plugin": "^4.0.5",
     "null-loader": "^3.0.0",
@@ -73,15 +69,6 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
     "webpack-node-externals": "^1.7.2",
-<<<<<<< HEAD
-    "wnumb": "^1.2.0",
-    "worker-loader": "^2.0.0",
-    "worker-plugin": "^4.0.2"
-  },
-  "dependencies": {},
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
-=======
     "wnumb": "^1.2.0"
   }
->>>>>>> origin/master
 }
