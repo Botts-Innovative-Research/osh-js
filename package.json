@@ -1,5 +1,5 @@
 {
-  "name": "osh-js",
+  "name": "@osh/osh-js",
   "version": "3.1.5",
   "description": "OSH javascript Toolkit",
   "main": "source/core/OSH.js",
