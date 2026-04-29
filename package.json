@@ -1,5 +1,5 @@
 {
-  "name": "osh-js",
+  "name": "@osh/osh-js",
   "version": "3.1.5",
   "description": "OSH javascript Toolkit",
   "main": "source/core/OSH.js",
@@ -23,6 +23,9 @@
     "url": "https://github.com/opensensorhub/osh-js/issues"
   },
   "homepage": "https://github.com/opensensorhub/osh-js#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "jest",
     "test:bundlers": "bash tests/bundler/test-bundlers.sh",
@@ -49,8 +52,9 @@
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.11.0",
     "empty-module": "0.0.2",
+    "file-loader": "^5.1.0",
+    "jsdoc": "^4.0.3",
     "jest": "^30.2.0",
-    "jsdoc": "^3.6.4",
     "moment": "^2.24.0",
     "npm-install-webpack-plugin": "^4.0.5",
     "null-loader": "^3.0.0",
