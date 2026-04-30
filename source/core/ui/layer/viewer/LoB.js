@@ -141,7 +141,6 @@ class LoBLayer extends Layer {
 			this.addFn(this.getDataSourcesIdsByProperty('getLobId'), syncIds);
 		}
 
-		// if (isDefined(properties.getOrigin)) {
 		if (this.checkFn("getOrigin")) {
 			const fn = async (rec, timestamp, options) => {
 				const origin = await this.getFunc('getOrigin')(rec, timestamp, options);
@@ -161,7 +160,6 @@ class LoBLayer extends Layer {
 			this.addFn(this.getDataSourcesIdsByProperty('getOrigin'), fn);
 		}
 
-		// if (isDefined(properties.getBearing)) {
 		if (this.checkFn("getBearing")) {
 			const fn = async(rec, timestamp, options) => {
 				const bearing = await this.getFunc('getBearing')(rec, timestamp, options);
@@ -180,7 +178,6 @@ class LoBLayer extends Layer {
 			this.addFn(this.getDataSourcesIdsByProperty('getBearing'), fn);
 		}
 
-		// if(isDefined(properties.getOriginAndBearing)) {
 		if (this.checkFn("getOriginAndBearing")) {
 			const fn = async(rec, timestamp, options) => {
 				console.log('[LoB] getOriginAndBearing called');
