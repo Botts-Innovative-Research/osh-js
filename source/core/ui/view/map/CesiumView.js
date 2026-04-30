@@ -35,7 +35,6 @@ import {
     RectangleGeometry,
     Rectangle,
     Primitive,
-    // createDefaultImageryProviderViewModels,
     WebMapServiceImageryProvider,
     EllipsoidTerrainProvider,
     NearFarScalar,
@@ -350,8 +349,7 @@ class CesiumView extends MapView {
 
         const onHover = (movement) => {
             if (!movement) return;
-            /*console.log("[CesiumView] onHover movement: ", movement);
-            console.log("[CesiumView] Scene Object DEBUG: ", that.viewer.scene);*/
+
             const pickedFeature = that.viewer.scene.pick(movement.endPosition);
             if (!isDefined(pickedFeature) || !isDefined(pickedFeature.id)) {
                 return;

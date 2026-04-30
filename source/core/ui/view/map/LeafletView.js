@@ -27,24 +27,24 @@ import MapView from "./MapView";
  import LeafletView from 'core/ui/view/map/LeafletView.js';
 
  let leafletMapView = new LeafletView({
- container: 'leafletMap',
- layers: [
- new PointMarkerLayer({
- dataSourceId: gpsDataSource.id,
- getLocation: (rec) => ({
- x: rec.location.lon,
- y: rec.location.lat,
- z: rec.location.alt
- }),
- icon: './images/car-location.png',
- iconSize: [32, 64],
- iconAnchor: [16, 65],
- name: 'Car',
- description: 'GPS car Toulouse'
- })
- ],
- autoZoomOnFirstMarker: true
- });
+	container: 'leafletMap',
+	layers: [
+	  new PointMarkerLayer({
+      dataSourceId: gpsDataSource.id,
+      getLocation: (rec) => ({
+        x: rec.location.lon,
+        y: rec.location.lat,
+        z: rec.location.alt
+      }),
+      icon: './images/car-location.png',
+      iconSize: [32, 64],
+      iconAnchor: [16, 65],
+      name: 'Car',
+      description: 'GPS car Toulouse'
+    })
+  ],
+	autoZoomOnFirstMarker: true
+});
  */
 class LeafletView extends MapView {
     /**
@@ -102,8 +102,6 @@ class LeafletView extends MapView {
                 baseLayers[defaultLayers[i].name] = defaultLayers[i].layer;
         }
 
-        // baseLayers[defaultLayers[0].name] = defaultLayers[0].layer;
-        // overlays[defaultLayers[1].name] = defaultLayers[1].layer;
         if (isDefined(options)) {
             if (isDefined(options.initialView)) {
                 initialView = {
@@ -146,9 +144,7 @@ class LeafletView extends MapView {
 
         this.map.setView(initialView.location, initialView.zoom);
 
-        //this.initLayers();
     }
-
 
     /**
      * Gets the list of default layers.
@@ -474,6 +470,20 @@ class LeafletView extends MapView {
     }
 
     /**
+     *  Adds an image to the map.
+     * @param {imageURL}
+     * @param {bounds}
+     * @param {options}
+     */
+    addImageOverlay(imageURL, bounds, options) {
+        let overlay = new L.ImageOverlay(imageURL, bounds, options)
+            .addTo(this.map);
+
+        return overlay;
+    }
+
+
+    /**
      * Updates the marker associated to the layer.
      * @param {PointMarkerLayer.props} props - The layer properties allowing the update of the marker
      */
@@ -507,8 +517,6 @@ class LeafletView extends MapView {
                 }
             }
         }
-
-        // console.log(`${marker.id} => ${props.orientation.heading}`);
 
         // updates orientation
         if (isDefined(props.orientation)) {
