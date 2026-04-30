@@ -34,10 +34,10 @@ self.onerror = (event) => {
             message: 'error',
             type: 'error',
             detail: {
-                message: event?.message,
-                filename: event?.filename,
-                lineno: event?.lineno,
-                colno: event?.colno
+                message: event && event.message,
+                filename: event && event.filename,
+                lineno: event && event.lineno,
+                colno: event && event.colno
             }
         });
     } catch (err) {
@@ -49,7 +49,7 @@ self.onunhandledrejection = (event) => {
         self.postMessage({
             message: 'error',
             type: 'unhandledrejection',
-            detail: event?.reason
+            detail: event && event.reason
         });
     } catch (err) {
         console.error('[ffmpeg worker] unhandledrejection handler failed', err);
