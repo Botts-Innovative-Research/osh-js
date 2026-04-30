@@ -89,7 +89,6 @@ class FFMPEGView extends CanvasView {
     async updateVideo(props) {
         if (!this.skipFrame) {
             if (this.decodeWorker == null) {
-                console.log('[FFMPEGView] init worker', { codec: props.frameData?.compression, dataSourceId: this.dataSourceId });
                 this.initFFMPEG_DECODER_WORKER(props.frameData.compression);
             }
             return this.decode(
