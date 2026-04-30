@@ -10,7 +10,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {assertDefined, isDefined, isWebWorker, randomUUID} from "../../../utils/Utils.js";
-import DecodeWorker from './workers/ffmpeg.decode.video.worker.js?worker';
+import DecodeWorker from './workers/ffmpeg.decode.video.worker.js';
 import '../../../resources/css/ffmpegview.css';
 import YUVCanvas from "./YUVCanvas";
 import CanvasView from "./CanvasView";
