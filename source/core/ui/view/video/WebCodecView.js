@@ -394,7 +394,6 @@ class WebCodecView extends CanvasView {
                     throw e;
                 }
             }
-            this.videoDecoder.decode(chunk);
         } else {
             console.warn('decoder has not been initialized yet');
         }
