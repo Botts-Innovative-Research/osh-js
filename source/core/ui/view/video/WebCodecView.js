@@ -384,6 +384,16 @@ class WebCodecView extends CanvasView {
                 type: key ? 'key' : 'delta',
                 data: frameData
             });
+            
+            try {
+                this.videoDecoder.decode(chunk);
+            } catch (e) {
+                if (e.message.includes("A key frame is required after configure() or flush().")) {
+                    console.warn('Missing keyframe');
+                } else {
+                    throw e;
+                }
+            }
             this.videoDecoder.decode(chunk);
         } else {
             console.warn('decoder has not been initialized yet');
