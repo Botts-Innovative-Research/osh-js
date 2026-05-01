@@ -232,6 +232,7 @@ class WebCodecView extends CanvasView {
                         codedWidth: this.width,
                         codedHeight:this.height,
                     });
+                    this.seenKeyframe = false;
                 }
                 const bitmap = await createImageBitmap(videoFrame);
                 try {
@@ -255,6 +256,7 @@ class WebCodecView extends CanvasView {
                 codedWidth: this.width,
                 codedHeight: this.height,
             });
+            this.seenKeyframe = false;
             this.codecConfigured = true;
         }catch (ex) {
             this.elementDiv.remove(); // remove reserved div element
