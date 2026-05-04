@@ -10,7 +10,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {assertDefined, isDefined, isWebWorker, randomUUID} from "../../../utils/Utils.js";
-import DecodeWorker from './workers/ffmpeg.decode.video.worker.js?worker';
+import DecodeWorker from './workers/ffmpeg.decode.video.worker.js';
 import '../../../resources/css/ffmpegview.css';
 import YUVCanvas from "./YUVCanvas";
 import CanvasView from "./CanvasView";
@@ -107,10 +107,7 @@ class FFMPEGView extends CanvasView {
      */
     reset() {
         this.skipFrame = true;
-        // if(isDefined(this.decodeWorker)) {
-        //     this.decodeWorker.terminate();
-        //     this.decodeWorker = null;
-        // }
+
         if(this.decodeWorker) {
             this.decodeWorker.postMessage({
                 message: 'release'
@@ -144,48 +141,20 @@ class FFMPEGView extends CanvasView {
      * @private
      */
     initFFMPEG_DECODER_WORKER(codec) {
-        console.log('[FFMPEGView] initFFMPEG_DECODER_WORKER start', { codec });
-
-        console.log('[FFMPEGView] creating worker via import', { DecodeWorkerType: typeof DecodeWorker });
-
-      //  let decodeWorkerUrl = new URL('./workers/ffmpeg.decode.video.worker.js', import.meta.url);
-       // this.decodeWorker = new Worker(decodeWorkerUrl, {type: 'module'});
-
-        this.decodeWorker = new DecodeWorker();
+        this.decodeWorker = new Worker(new URL('./workers/ffmpeg.decode.video.worker.js', import.meta.url), { type: 'module' });
         this.decodeWorker.id = randomUUID();
-
-        this.decodeWorker.onerror = (err) => {
-            console.error('[FFMPEGView] worker error', {
-                message: err.message,
-                filename: err.filename,
-                lineno: err.lineno,
-                colno: err.colno,
-                error: err.error
-            });
-        };
-        this.decodeWorker.onmessageerror = (err) => {
-            console.error('[FFMPEGView] worker message error', err);
-        };
 
         this.decodeWorker.postMessage({
             'message': 'init',
             'codec' : codec.toLowerCase()
         });
 
-        // const offscreenCanvas = this.canvas.transferControlToOffscreen();
-        // let canvas = document.createElement('canvas');
-        // canvas.setAttribute('width', this.width);
-        // canvas.setAttribute('height', this.height);
-        // this.domNode.appendChild(canvas);
-
-        // const offscreenCanvas = canvas.transferControlToOffscreen();
-        // drawWorker.postMessage({
-        //     canvas: offscreenCanvas,
-        //     width: this.width,
-        //     height: this.height,
-        //     framerate: this.framerate,
-        //     dataSourceId: this.dataSourceId
-        // }, [offscreenCanvas]);
+        this.decodeWorker.onerror = (e) => {
+            console.error('Decode worker error:', e);
+        };
+        this.decodeWorker.onmessageerror = (e) => {
+            console.error('Decode worker message error:', e);
+        };
 
         const that = this;
         this.decodeWorker.onmessage = function (e) {

@@ -1,4 +1,5 @@
-import OSH from './ffmpeg.js';
+import * as ffmpegModule from '../ffmpeg/ffmpeg.js';
+const OSH = ffmpegModule.default || ffmpegModule;
 
 import {isDefined} from "../../../utils/Utils.js";
 

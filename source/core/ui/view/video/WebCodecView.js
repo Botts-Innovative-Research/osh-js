@@ -377,12 +377,7 @@ class WebCodecView extends CanvasView {
         }
     }
 
-    /**
-     * @private
-     * @param pktSize
-     * @param pktData
-     * @param timestamp
-     */
+
     isH264Keyframe(pktData) {
         // Scan for Annex B start codes and IDR (nal_type 5) to mark keyframes.
         for (let i = 0; i + 4 < pktData.length; i++) {
@@ -404,7 +399,12 @@ class WebCodecView extends CanvasView {
         return false;
     }
 
-
+    /**
+     * @private
+     * @param pktSize
+     * @param pktData
+     * @param timestamp
+     */
     async decode(pktSize, pktData, timestamp, roll) {
         if (this.codecConfigured) {
             let key = false;
@@ -458,4 +458,3 @@ class WebCodecView extends CanvasView {
 }
 
 export default WebCodecView;
-

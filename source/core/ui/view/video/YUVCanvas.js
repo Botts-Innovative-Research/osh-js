@@ -40,7 +40,7 @@ class YUVCanvas {
          * Draw the next output picture using WebGL
          */
         if (this.type === "yuv420") {
-            this.drawNextOuptutPictureGL = (par) => {
+            this.drawNextOutputPictureGL = (par) => {
                 var gl = this.contextGL;
                 var texturePosBuffer = this.texturePosBuffer;
                 var uTexturePosBuffer = this.uTexturePosBuffer;
