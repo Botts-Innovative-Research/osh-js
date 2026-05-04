@@ -175,7 +175,6 @@ class WebCodecView extends CanvasView {
                     this.width = videoFrame.codedWidth;
                     this.height = videoFrame.codedHeight;
 
-                    // this.updateCanvasSize(this.width ,this.height);
                     isReconfigure = true;
                 }
                 if(this.videoDecoder.state === 'closed' || isReconfigure) {
