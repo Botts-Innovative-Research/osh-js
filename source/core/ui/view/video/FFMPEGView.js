@@ -160,23 +160,16 @@ class FFMPEGView extends CanvasView {
         this.decodeWorker.onmessage = function (e) {
 
             if (e.data && e.data.message === 'ready') {
-                console.log('[ffmpeg worker] ready', e.data);
                 return;
             }
             if (e.data && e.data.message === 'pong') {
-                console.log('[ffmpeg worker] pong', e.data);
                 return;
             }
             if (e.data && e.data.message === 'error') {
-                console.error('[ffmpeg worker] error', e.data);
                 return;
             }
             let decodedFrame = e.data;
-            console.log('[ffmpeg worker] decoded frame', decodedFrame.frame_width, decodedFrame.frame_height, {
-                timestamp: decodedFrame.timestamp,
-                pktSize: decodedFrame.pktSize,
-            });
-
+            
             that.drawFrame(decodedFrame);
             this.onAfterDecoded(decodedFrame, FrameType.ARRAY);
             this.updateStatistics(decodedFrame.pktSize);

@@ -128,11 +128,6 @@ class WebCodecView extends CanvasView {
         return canvasElement;
     }
 
-    updateCanvasSize(width, height) {
-        this.canvasElt.width = width;
-        this.canvasElt.height = height;
-    }
-
     async setData(dataSourceId, data) {
         if(data.type === 'videoData') {
             const values = data.values;
@@ -174,8 +169,10 @@ class WebCodecView extends CanvasView {
                 if (this.width !== videoFrame.codedWidth || this.height !== videoFrame.codedHeight) {
                     this.width = videoFrame.codedWidth;
                     this.height = videoFrame.codedHeight;
-
-                    // this.updateCanvasSize(this.width ,this.height);
+                    // Canvas drawing buffer is intentionally left at its constructor size;
+                    // bitmaprenderer scales the frame, which avoids mid-stream layout reflow
+                    // and prevents codec-padded codedWidth/codedHeight (e.g. 1920x1088) from
+                    // being rendered as visible pixels.
                     isReconfigure = true;
                 }
                 if(this.videoDecoder.state === 'closed' || isReconfigure) {
