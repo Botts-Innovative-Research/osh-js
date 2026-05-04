@@ -94,7 +94,7 @@ class WebCodecView extends CanvasView {
         this.codec = this.codecMap['h264'];
 
         if(isDefined(properties.codec)) {
-            if(!properties.codec in this.codecMap) {
+            if(!(properties.codec in this.codecMap)) {
                 throw Error(`The codec properties.codec is not supported, the list of supported codec: this.codecMap`);
             } else {
                 this.codec = this.codecMap[properties.codec];
@@ -107,8 +107,9 @@ class WebCodecView extends CanvasView {
         this.domNode.appendChild(this.canvasElt);
 
         this.queue = [];
-        this.parameterSets = { sps: null, pps: null };
         this.seenKeyframe = false;
+        this.h264Sps = null;
+        this.h264Pps = null;
     }
     /**
      * Create <canvas> DOM element with some height/width/style
@@ -163,55 +164,6 @@ class WebCodecView extends CanvasView {
     reset() {
     }
 
-    /**
-     * Check if data is in Annex B format by scanning for start codes.
-     * @param {Uint8Array} data
-     * @returns {boolean}
-     */
-    isAnnexB(data) {
-        for (let i = 0; i < data.length - 3; i++) {
-            if (data[i] === 0x00 && data[i + 1] === 0x00) {
-                if (data[i + 2] === 0x01) return true;
-                if (data[i + 2] === 0x00 && i + 3 < data.length && data[i + 3] === 0x01) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Convert AVC/AVCC format to Annex B by replacing length prefixes with start codes.
-     * @param {Uint8Array} data
-     * @returns {Uint8Array}
-     */
-    convertAvcToAnnexB(data) {
-        const startCode = new Uint8Array([0x00, 0x00, 0x00, 0x01]);
-        const output = [];
-        let offset = 0;
-
-        while (offset < data.length - 4) {
-            const naluLen = (data[offset] << 24) | (data[offset + 1] << 16) |
-                            (data[offset + 2] << 8) | data[offset + 3];
-            offset += 4;
-
-            if (naluLen <= 0 || offset + naluLen > data.length) break;
-
-            output.push(startCode);
-            output.push(data.slice(offset, offset + naluLen));
-            offset += naluLen;
-        }
-
-        if (output.length === 0) return data;
-
-        const totalLen = output.reduce((sum, arr) => sum + arr.length, 0);
-        const result = new Uint8Array(totalLen);
-        let pos = 0;
-        for (const arr of output) {
-            result.set(arr, pos);
-            pos += arr.length;
-        }
-        return result;
-    }
-
     initDecoder() {
         this.gl = this.canvasElt.getContext("bitmaprenderer");
 
@@ -223,15 +175,23 @@ class WebCodecView extends CanvasView {
                     this.width = videoFrame.codedWidth;
                     this.height = videoFrame.codedHeight;
 
-                    this.updateCanvasSize(this.width ,this.height);
+                    // this.updateCanvasSize(this.width ,this.height);
                     isReconfigure = true;
                 }
                 if(this.videoDecoder.state === 'closed' || isReconfigure) {
-                    this.videoDecoder.configure({
+                    const config = {
                         codec: this.codec,
                         codedWidth: this.width,
-                        codedHeight:this.height,
-                    });
+                        codedHeight: this.height,
+                    };
+
+                    if (this.codec === this.codecMap['h264']) {
+                        config.avc = { format: "annexb" };
+                    }
+                    this.videoDecoder.configure(config);
+                    this.seenKeyframe = false;
+                    this.h264Sps = null;
+                    this.h264Pps = null;
                 }
                 const bitmap = await createImageBitmap(videoFrame);
                 try {
@@ -250,16 +210,135 @@ class WebCodecView extends CanvasView {
         };
         try {
             this.videoDecoder = new VideoDecoder(init);
-            this.videoDecoder.configure({
+            const config = {
                 codec: this.codec,
                 codedWidth: this.width,
                 codedHeight: this.height,
-            });
+            };
+            if (this.codec === this.codecMap['h264']) {
+                config.avc = { format: "annexb" };
+            }
+            this.videoDecoder.configure(config);
             this.codecConfigured = true;
+            this.seenKeyframe = false;
+            this.h264Sps = null;
+            this.h264Pps = null;
         }catch (ex) {
             this.elementDiv.remove(); // remove reserved div element
             throw Error('Cannot configure WebCodec API VideoDecoder');
         }
+    }
+
+    isAnnexB(pktData) {
+        for (let i = 0; i + 3 < pktData.length; i++) {
+            if (pktData[i] === 0 && pktData[i + 1] === 0) {
+                if (pktData[i + 2] === 1 || (pktData[i + 2] === 0 && pktData[i + 3] === 1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    convertAvcToAnnexB(pktData) {
+        let total = 0;
+        let offset = 0;
+        while (offset + 4 <= pktData.length) {
+            const nalSize = ((pktData[offset] << 24) | (pktData[offset + 1] << 16) | (pktData[offset + 2] << 8) | pktData[offset + 3]) >>> 0;
+            if (nalSize <= 0 || offset + 4 + nalSize > pktData.length) {
+                return pktData;
+            }
+            total += 4 + nalSize;
+            offset += 4 + nalSize;
+        }
+        if (total === 0) {
+            return pktData;
+        }
+        const out = new Uint8Array(total);
+        offset = 0;
+        let writeOffset = 0;
+        while (offset + 4 <= pktData.length && writeOffset + 4 <= total) {
+            const nalSize = ((pktData[offset] << 24) | (pktData[offset + 1] << 16) | (pktData[offset + 2] << 8) | pktData[offset + 3]) >>> 0;
+            if (nalSize <= 0 || offset + 4 + nalSize > pktData.length) {
+                break;
+            }
+            out[writeOffset] = 0;
+            out[writeOffset + 1] = 0;
+            out[writeOffset + 2] = 0;
+            out[writeOffset + 3] = 1;
+            out.set(pktData.subarray(offset + 4, offset + 4 + nalSize), writeOffset + 4);
+            writeOffset += 4 + nalSize;
+            offset += 4 + nalSize;
+        }
+        return out;
+    }
+
+    getAnnexBNalUnits(pktData) {
+        const units = [];
+        const starts = [];
+        for (let i = 0; i + 3 < pktData.length; i++) {
+            if (pktData[i] === 0 && pktData[i + 1] === 0) {
+                if (pktData[i + 2] === 1 || (pktData[i + 2] === 0 && pktData[i + 3] === 1)) {
+                    starts.push(i);
+                }
+            }
+        }
+        for (let i = 0; i < starts.length; i++) {
+            const start = starts[i];
+            const startCodeSize = pktData[start + 2] === 1 ? 3 : 4;
+            const nalStart = start + startCodeSize;
+            const nalEnd = i + 1 < starts.length ? starts[i + 1] : pktData.length;
+            if (nalStart < nalEnd) {
+                const nal = pktData.subarray(nalStart, nalEnd);
+                const type = nal[0] & 0x1f;
+                units.push({ type, data: nal });
+            }
+        }
+        return units;
+    }
+
+    cacheH264ParameterSets(pktData) {
+        const units = this.getAnnexBNalUnits(pktData);
+        for (const unit of units) {
+            if (unit.type === 7) {
+                this.h264Sps = unit.data.slice();
+            } else if (unit.type === 8) {
+                this.h264Pps = unit.data.slice();
+            }
+        }
+    }
+
+    hasH264ParameterSets() {
+        return !!(this.h264Sps && this.h264Pps);
+    }
+
+    prependH264ParameterSets(pktData) {
+        const units = this.getAnnexBNalUnits(pktData);
+        const hasSps = units.some(unit => unit.type === 7);
+        const hasPps = units.some(unit => unit.type === 8);
+        if (hasSps && hasPps) {
+            return pktData;
+        }
+        if (!this.hasH264ParameterSets()) {
+            return pktData;
+        }
+        const startCode = new Uint8Array([0, 0, 0, 1]);
+        const total =
+            startCode.length + this.h264Sps.length +
+            startCode.length + this.h264Pps.length +
+            pktData.length;
+        const out = new Uint8Array(total);
+        let offset = 0;
+        out.set(startCode, offset);
+        offset += startCode.length;
+        out.set(this.h264Sps, offset);
+        offset += this.h264Sps.length;
+        out.set(startCode, offset);
+        offset += startCode.length;
+        out.set(this.h264Pps, offset);
+        offset += this.h264Pps.length;
+        out.set(pktData, offset);
+        return out;
     }
 
     async handleDecodedFrame(videoFrame, width, height, timestamp = 0, queueElt = null) {
@@ -304,74 +383,47 @@ class WebCodecView extends CanvasView {
      * @param pktData
      * @param timestamp
      */
+    isH264Keyframe(pktData) {
+        // Scan for Annex B start codes and IDR (nal_type 5) to mark keyframes.
+        for (let i = 0; i + 4 < pktData.length; i++) {
+            if (pktData[i] === 0 && pktData[i + 1] === 0) {
+                let offset = -1;
+                if (pktData[i + 2] === 1) {
+                    offset = i + 3;
+                } else if (pktData[i + 2] === 0 && pktData[i + 3] === 1) {
+                    offset = i + 4;
+                }
+                if (offset !== -1 && offset < pktData.length) {
+                    const nalType = pktData[offset] & 0x1f;
+                    if (nalType === 5) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
     async decode(pktSize, pktData, timestamp, roll) {
         if (this.codecConfigured) {
             let key = false;
-            let frameData = pktData;
+            let dataView = pktData instanceof Uint8Array ? pktData : new Uint8Array(pktData);
 
             if(this.codec === this.codecMap['h264']) {
-                // Ensure data is in Annex B format
-                if (!this.isAnnexB(pktData)) {
-                    frameData = this.convertAvcToAnnexB(pktData);
+                if (!this.isAnnexB(dataView)) {
+                    dataView = this.convertAvcToAnnexB(dataView);
                 }
-
-                // Scan NAL units for keyframe detection and parameter set caching
-                let hasIDR = false;
-                let i = 0;
-                while (i < frameData.length - 3) {
-                    // Find start code
-                    let startCodeLen = 0;
-                    if (frameData[i] === 0x00 && frameData[i + 1] === 0x00) {
-                        if (frameData[i + 2] === 0x01) {
-                            startCodeLen = 3;
-                        } else if (frameData[i + 2] === 0x00 && i + 3 < frameData.length && frameData[i + 3] === 0x01) {
-                            startCodeLen = 4;
-                        }
-                    }
-
-                    if (startCodeLen > 0) {
-                        const nalHeaderIdx = i + startCodeLen;
-                        if (nalHeaderIdx < frameData.length) {
-                            const nalType = frameData[nalHeaderIdx] & 0x1F;
-
-                            if (nalType === 7) {
-                                // SPS
-                                const end = this.findNextStartCode(frameData, nalHeaderIdx);
-                                this.parameterSets.sps = frameData.slice(i, end);
-                            } else if (nalType === 8) {
-                                // PPS
-                                const end = this.findNextStartCode(frameData, nalHeaderIdx);
-                                this.parameterSets.pps = frameData.slice(i, end);
-                            } else if (nalType === 5) {
-                                // IDR frame
-                                hasIDR = true;
-                            }
-                        }
-                        i = nalHeaderIdx + 1;
-                    } else {
-                        i++;
-                    }
-                }
-
-                key = hasIDR;
-
-                // Defer processing until we see the first keyframe
+                this.cacheH264ParameterSets(dataView);
+                key = this.isH264Keyframe(dataView);
                 if (!this.seenKeyframe) {
-                    if (!key) return;
-                    this.seenKeyframe = true;
-                }
-
-                // Prepend cached SPS/PPS before keyframes for decoder robustness
-                if (key && this.parameterSets.sps && this.parameterSets.pps) {
-                    const combined = new Uint8Array(
-                        this.parameterSets.sps.length +
-                        this.parameterSets.pps.length +
-                        frameData.length
-                    );
-                    combined.set(this.parameterSets.sps, 0);
-                    combined.set(this.parameterSets.pps, this.parameterSets.sps.length);
-                    combined.set(frameData, this.parameterSets.sps.length + this.parameterSets.pps.length);
-                    frameData = combined;
+                    if (!this.hasH264ParameterSets()) {
+                        return;
+                    }
+                    if (!key) {
+                        return;
+                    }
+                    dataView = this.prependH264ParameterSets(dataView);
                 }
             }
 
@@ -382,28 +434,15 @@ class WebCodecView extends CanvasView {
             let chunk = new EncodedVideoChunk({
                 timestamp: timestamp,
                 type: key ? 'key' : 'delta',
-                data: frameData
+                data: dataView
             });
             this.videoDecoder.decode(chunk);
+            if (key) {
+                this.seenKeyframe = true;
+            }
         } else {
             console.warn('decoder has not been initialized yet');
         }
-    }
-
-    /**
-     * Find the next Annex B start code position after the given offset.
-     * @param {Uint8Array} data
-     * @param {number} offset
-     * @returns {number}
-     */
-    findNextStartCode(data, offset) {
-        for (let i = offset; i < data.length - 3; i++) {
-            if (data[i] === 0x00 && data[i + 1] === 0x00) {
-                if (data[i + 2] === 0x01) return i;
-                if (data[i + 2] === 0x00 && i + 3 < data.length && data[i + 3] === 0x01) return i;
-            }
-        }
-        return data.length;
     }
 
     destroy() {
@@ -419,3 +458,4 @@ class WebCodecView extends CanvasView {
 }
 
 export default WebCodecView;
+
