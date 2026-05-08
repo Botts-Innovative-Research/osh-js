@@ -24,12 +24,6 @@ import {isDefined} from "../../../utils/Utils";
  * Backoff schedule (in milliseconds) used by {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
  * when attempting to retrieve the most recent observation after a (re)connection.
  *
- * Each value represents how long to wait before the corresponding attempt. The schedule grows
- * progressively to give the server time to publish the latest observation while keeping the
- * first attempt responsive enough for the UI (e.g. a map marker) to refresh quickly.
- *
- * The number of retries is implicitly the length of this array.
- *
  * @type {number[]}
  */
 const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
@@ -86,10 +80,11 @@ class SweApiRealTimeContext extends SweApiContext {
             }
         }
 
-            if (isDefined(this.streamObject)) {
-               this.streamObject.stream().onChangeStatus = this.onStreamConnectorStatus.bind(this);
-            }
+        if (isDefined(this.streamObject)) {
+            this.streamObject.stream().onChangeStatus = this.onStreamConnectorStatus.bind(this);
         }
+    }
+
     /**
      * Stream connector status callback.
      *
@@ -114,13 +109,7 @@ class SweApiRealTimeContext extends SweApiContext {
     }
 
     /**
-     * Debounces calls to {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}.
-     *
-     * A short fixed delay (150 ms) is used to coalesce bursts of triggers that can occur in quick
-     * succession — for example when `connect()` is called while the stream simultaneously
-     * transitions to CONNECTED, or when reconnection events fire multiple times. Pending timers
-     * are cancelled and rescheduled on each call so only the last invocation actually performs
-     * the fetch.
+     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
      */
     scheduleFetchLatestObservations() {
         if (this._fetchLatestDebounce) {
@@ -135,23 +124,8 @@ class SweApiRealTimeContext extends SweApiContext {
     /**
      * Fetches the most recent observation from the SWE API DataStream with a retry/backoff loop.
      *
-     * Why this exists:
-     *  - Real-time streams only deliver observations produced *after* the subscription is opened.
-     *    A consumer connecting to a slow-cadence sensor (e.g. a UAV location updated once every
-     *    few seconds) would otherwise be left with no data to display until the next push.
-     *  - Right after a (re)connection the server may not yet have indexed the latest record, so
-     *    a single GET on `resultTime=latest` is unreliable. We retry with an increasing backoff
-     *    defined by {@link FETCH_LATEST_RETRY_DELAYS_MS}.
-     *
-     * Behavior:
-     *  - No-op if the underlying `streamObject` is not a DataStream (i.e. has no
-     *    `searchObservations`), so this method is safe to call for control streams as well.
-     *  - On each attempt: builds an observation filter from the current properties, forces
-     *    `resultTime = 'latest'`, requests the first page, stamps each record with the current
-     *    datasource `version`, and forwards the data to {@link handleData} using the configured
-     *    response format. Returns as soon as a non-empty page is received.
-     *  - If every attempt fails, the last error is logged once for diagnostics; transient errors
-     *    on individual attempts are silently swallowed to allow the next retry to proceed.
+     * No-op if the underlying `streamObject` is not a DataStream (i.e. has no
+     * `searchObservations`)
      *
      * @returns {Promise<void>} Resolves when either the latest observation has been delivered
      *                          to {@link handleData} or all retry attempts have been exhausted.
@@ -168,8 +142,7 @@ class SweApiRealTimeContext extends SweApiContext {
                 const filter = this.createObservationFilter(this.properties);
                 filter.props.resultTime = 'latest';
                 const collection = await this.streamObject.searchObservations(filter);
-                const page = await collection.nextPage();
-                const data = page;
+                const data = await collection.nextPage();
                 if (data && data.length) {
                     data.forEach(d => {
                         d.version = this.properties.version;
@@ -197,11 +170,7 @@ class SweApiRealTimeContext extends SweApiContext {
     }
 
     /**
-     * Opens the underlying real-time stream (observations or control status).
-     *
-     * For DataStream-backed contexts, also schedules a one-shot fetch of the latest observation
-     * (with retry/backoff) so that consumers immediately receive the most recent value rather
-     * than having to wait for the next pushed update from the server.
+     * Opens the underlying real-time stream
      */
     connect() {
         this.streamFunction();

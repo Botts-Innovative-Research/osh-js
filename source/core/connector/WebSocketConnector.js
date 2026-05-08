@@ -49,12 +49,6 @@ class WebSocketConnector extends DataConnector {
         this.interval = -1;
         this.lastReceiveTime = 0;
         this.extraUrl = '';
-        // Per-instance reconnection timer id. Previously this was a module-level
-        // variable shared by every connector in the worker, which meant that when
-        // several datasources disconnected at the same time only the first one
-        // would register a retry loop — the others stayed dead and therefore
-        // never fired Status.CONNECTED again, so the "fetch latest observation"
-        // logic in SweApi.realtime.context.js would only run for one of them.
         this.reconnectionInterval = -1;
         this.reconnectRetry = (properties && properties.reconnectRetry) || 10;
     }
@@ -114,10 +108,7 @@ class WebSocketConnector extends DataConnector {
                 }
                 this.onClose(event.code);
             };
-            if(this.reconnectionInterval !== -1) {
-                clearInterval(this.reconnectionInterval);
-                this.reconnectionInterval = -1;
-            }
+            this.checkAndClearReconnection();
         }
     }
 
@@ -182,10 +173,7 @@ class WebSocketConnector extends DataConnector {
                     this.onClose(event.code);
                     resolve(results);
                 };
-                if (this.reconnectionInterval !== -1) {
-                    clearInterval(this.reconnectionInterval);
-                    this.reconnectionInterval = -1;
-                }
+                this.checkAndClearReconnection();
             }
         });
     }
@@ -217,8 +205,7 @@ class WebSocketConnector extends DataConnector {
                 if (this.lastReceiveTime === -1 || (delta >= this.reconnectTimeout)) {
                     if(count++ >= this.reconnectRetry) {
                         console.warn(`Maximum reconnection retries attempted: ${this.reconnectRetry}`)
-                        clearInterval(this.reconnectionInterval);
-                        this.reconnectionInterval = -1;
+                        this.checkAndClearReconnection();
                     } else {
                         let fullUrl = url;
                         if(isDefined(this.extraUrl)) {
