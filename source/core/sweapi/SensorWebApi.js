@@ -103,72 +103,66 @@ class SensorWebApi {
         this._network.stream.connector.connect();
     }
 
-    getHeaders() {
-        const headers = {
-        };
+    async getHeaders() {
+        const headers = {};
 
-        if (getOAuthClient() !== null) {
-            if (getOAuthClient().isExpired()) {
-                (async () => {
-                    await getOAuthClient().refreshAccessToken();
-                    headers['Authorization'] = 'Bearer ' + getOAuthClient().getToken();
-                })();
+        const oAuthClient = getOAuthClient();
+        if (oAuthClient !== null) {
+            const token = await oAuthClient.getValidToken();
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
             }
-        } else {
-            if('connectorOpts' in this.networkProperties){
-                if('username' in this.networkProperties.connectorOpts && 'password' in this.networkProperties.connectorOpts) {
-                    headers['Authorization'] = 'Basic ' +
-                        btoa(this.networkProperties.connectorOpts.username + ":" + this.networkProperties.connectorOpts.password);
-                } else {
-                    for(let key in this.networkProperties.connectorOpts) {
-                        headers[key] = this.networkProperties.connectorOpts[key];
-                    }
+        } else if ('connectorOpts' in this.networkProperties) {
+            const opts = this.networkProperties.connectorOpts;
+            if ('username' in opts && 'password' in opts) {
+                headers['Authorization'] = 'Basic ' + btoa(opts.username + ':' + opts.password);
+            } else {
+                for (const key in opts) {
+                    headers[key] = opts[key];
                 }
             }
         }
         return headers;
     }
 
-    fetchAsJson(apiUrl, queryString) {
-        const fullUrl = this.baseUrl() +  apiUrl + '?' +queryString;
+    async fetchAsJson(apiUrl, queryString) {
+        const fullUrl = this.baseUrl() + apiUrl + '?' + queryString;
 
-        const headers = this.getHeaders();
+        const headers = await this.getHeaders();
 
-        return fetch(fullUrl, {
-                method: 'GET',
-                credentials: 'include',
-                headers: headers
-            }
-        ).then(function (response) {
-            if (!response.ok) {
-                const err = new Error(`Got ${response.status} response from ${this.baseUrl()}`);
-                err.response = response;
-                throw err;
-            }
-            return response.json();
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            credentials: 'include',
+            headers: headers
         });
+
+        if (!response.ok) {
+            const err = new Error(`Got ${response.status} response from ${this.baseUrl()}`);
+            err.response = response;
+            throw err;
+        }
+        return response.json();
     }
 
-    postAsJson(apiUrl, jsonPayload) {
-        const fullUrl = this.baseUrl() +  apiUrl;
+    async postAsJson(apiUrl, jsonPayload) {
+        const fullUrl = this.baseUrl() + apiUrl;
 
-        const headers = this.getHeaders();
-
+        const headers = await this.getHeaders();
         headers['Accept'] = 'application/json';
         headers['Content-Type'] = 'application/json';
 
-        fetch(fullUrl, {
+        const response = await fetch(fullUrl, {
             method: 'POST',
             headers: headers,
             credentials: 'include',
             body: jsonPayload
-        }).then(function (response) {
-            if (!response.ok) {
-                const err = new Error(`Got ${response.status} response from ${fullUrl}`);
-                err.response = response;
-                throw err;
-            }
         });
+
+        if (!response.ok) {
+            const err = new Error(`Got ${response.status} response from ${fullUrl}`);
+            err.response = response;
+            throw err;
+        }
     }
 }
 export default SensorWebApi;
