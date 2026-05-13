@@ -46,11 +46,12 @@ class Collection {
         const queryString = `${this.filter.toQueryString()}&offset=${offset}&limit=${this.pageSize}`;
         const fullUrl = this.url + '?' + queryString;
 
-        let headers = {};
-        if (getOAuthClient() !== null) {
-            if (getOAuthClient().isExpired()) {
-                await getOAuthClient().refreshAccessToken();
-                headers['Authorization'] = 'Bearer ' + getOAuthClient().getToken();
+        const headers = {};
+        const oAuthClient = getOAuthClient();
+        if (oAuthClient !== null) {
+            const token = await oAuthClient.getValidToken();
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
             }
         }
 
