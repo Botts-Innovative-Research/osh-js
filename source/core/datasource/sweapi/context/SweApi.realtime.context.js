@@ -140,7 +140,7 @@ class SweApiRealTimeContext extends SweApiContext {
             await delay(FETCH_LATEST_RETRY_DELAYS_MS[i]);
             try {
                 const filter = this.createObservationFilter(this.properties);
-                filter.props.resultTime = 'latest';
+                filter.props.phenomenonTime = 'now';
                 const collection = await this.streamObject.searchObservations(filter);
                 const data = await collection.nextPage();
                 if (data && data.length) {
