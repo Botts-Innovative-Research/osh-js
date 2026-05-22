@@ -15,6 +15,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import SweCollectionDataParser from "../parsers/sweapi/collection/SweCollectionDataParser";
+import {getOAuthClient} from "osh-js/source/core/oauth/OAuthClient";
 
 class Collection {
     /**
@@ -45,10 +46,19 @@ class Collection {
         const queryString = `${this.filter.toQueryString()}&offset=${offset}&limit=${this.pageSize}`;
         const fullUrl = this.url + '?' + queryString;
 
+        const headers = {};
+        const oAuthClient = getOAuthClient();
+        if (oAuthClient !== null) {
+            const token = await oAuthClient.getValidToken();
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+        }
+
         const jsonResponse = await fetch(fullUrl, {
             method: 'GET',
             credentials: 'include',
-            headers: {}
+            headers: headers
         }).then((response) => {
             if (!response.ok) {
                 const err = new Error(`Got ${response.status} response from ${fullUrl}`);
