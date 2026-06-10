@@ -147,54 +147,27 @@ class WebCodecView extends CanvasView {
         }
     }
     async updateVideo(props) {
-        if (!this.skipFrame) {
-            if (!this.loggedFirstUpdateVideo) {
-                this.loggedFirstUpdateVideo = true;
-                const fdKeys = props && props.frameData ? Object.keys(props.frameData) : [];
-                const propsKeys = props ? Object.keys(props) : [];
-                console.log('[WebCodecView] first updateVideo call', {
-                    propsKeys,
-                    frameDataKeys: fdKeys,
-                    frameData: (() => {
-                        const clone = {};
-                        if (props && props.frameData) {
-                            for (const k of fdKeys) {
-                                const v = props.frameData[k];
-                                if (v && (v instanceof Uint8Array || v instanceof ArrayBuffer || (v && typeof v.length === 'number' && v.length > 64))) {
-                                    clone[k] = `<${v.constructor ? v.constructor.name : 'binary'} length=${v.length || v.byteLength}>`;
-                                } else {
-                                    clone[k] = v;
-                                }
-                            }
-                        }
-                        return clone;
-                    })(),
-                    fullProps: (() => {
-                        const clone = {};
-                        for (const k of propsKeys) {
-                            if (k === 'frameData') continue;
-                            clone[k] = props[k];
-                        }
-                        return clone;
-                    })()
-                });
-            }
-            if (!this.codecConfigured) {
-                const streamCodec = props.frameData.compression.toLowerCase();
-                if (streamCodec in this.codecMap) {
-                    this.codec = this.codecMap[streamCodec];
-                    this.compression = streamCodec;
-                }
-                this.initDecoder();
-            }
-
-            await this.decode(
-                props.frameData.data.length,
-                props.frameData.data,
-                props.timestamp,
-                props.roll || 0
-            );
+        if (this.skipFrame) {
+            return
+          } 
+        if (!this.loggedFirstUpdateVideo) {
+            this.loggedFirstUpdateVideo = true;
         }
+        if (!this.codecConfigured) {
+            const streamCodec = props.frameData.compression.toLowerCase();
+            if (streamCodec in this.codecMap) {
+                this.codec = this.codecMap[streamCodec];
+                this.compression = streamCodec;
+            }
+            this.initDecoder();
+        }   
+        
+        await this.decode(
+            props.frameData.data.length,
+            props.frameData.data,
+            props.timestamp,
+            props.roll || 0
+        );
     }
 
     /**
@@ -211,7 +184,6 @@ class WebCodecView extends CanvasView {
             output: async (videoFrame) => {
                 if (!this.loggedFirstOutput) {
                    this.loggedFirstOutput = true;
-                   console.log('[WebCodecView] first decoded frame', { codec: this.codec, codedWidth: videoFrame.codedWidth, codedHeight: videoFrame.codedHeight, timestamp: videoFrame.timestamp });
                 }
 
                 if (this.width !== videoFrame.codedWidth || this.height !== videoFrame.codedHeight) {
@@ -554,53 +526,16 @@ class WebCodecView extends CanvasView {
                     dataView = this.prependH264ParameterSets(dataView);
                 }
             } else if (this.codec === this.codecMap['h265']) {
-                const wasAnnexB = this.isAnnexB(dataView);
-                if (!wasAnnexB) {
+                if (!this.isAnnexB(dataView)) {
                     dataView = this.convertLengthPrefixedToAnnexB(dataView);
                 }
-                const preCache = {
-                    vps: !!this.h265Vps,
-                    sps: !!this.h265Sps,
-                    pps: !!this.h265Pps
-                };
+
                 this.cacheHevcParameterSets(dataView);
                 key = this.isHevcKeyframe(dataView);
 
-                const postCache = {
-                    vps: !!this.h265Vps,
-                    sps: !!this.h265Sps,
-                    pps: !!this.h265Pps
-                };
-
-                // Log when a new param set or keyframe appears
-//                if (postCache.vps !== preCache.vps || postCache.sps !== preCache.sps || postCache.pps !== preCache.pps) {
-//                    console.log('[WebCodecView] HEVC param set seen', { preCache, postCache });
-//                }
-
                 if (key && !this.hevcKeyframeSeen) {
                     this.hevcKeyframeSeen = true;
-                    const units = this.getAnnexBNalUnitsHevc(dataView);
-//                    console.log('[WebCodecView] HEVC first IRAP detected', { nalTypes: units.map(u => u.type) });
                 }
-                  // Log decode stats
-//                if (!this.loggedHevcDecodeStats || this.loggedHevcDecodeStats < 1) {
-//                    this.loggedHevcDecodeStats = (this.loggedHevcDecodeStats || 0) + 1;
-//                    const units = this.getAnnexBNalUnitsHevc(dataView);
-//                    const hexPreview = Array.from(dataView.subarray(0, Math.min(16, dataView.length)))
-//                        .map(b => b.toString(16).padStart(2, '0')).join(' ');
-//                    console.log('[WebCodecView] HEVC decode pkt', {
-//                        seq: this.loggedHevcDecodeStats,
-//                        size: dataView.length,
-//                        wasAnnexB,
-//                        nalTypes: units.map(u => u.type),
-//                        key,
-//                        preCache,
-//                        postCache,
-//                        hasParams: this.hasHevcParameterSets(),
-//                        seenKeyframe: this.seenKeyframe,
-//                        hexPreview
-//                    });
-//                }
 
                 if (!this.seenKeyframe) {
                     if (!this.hasHevcParameterSets() || !key) {
