@@ -378,7 +378,6 @@ class DataSynchronizerReplay {
                     startTimestamp: this.getStartTimeAsTimestamp(),
                     endTimestamp: this.getEndTimeAsTimestamp()
                 }).then(async () => {
-                    await this.disconnect();
                     this.timeChanged();
                     this.onRemovedDataSource(dataSource.id);
                 });
