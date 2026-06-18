@@ -1,5 +1,5 @@
 
-import { assertArray, isDefined } from 'osh-js/core/utils/Utils';
+import { assertArray, isDefined } from 'osh-js/source/core/utils/Utils';
 import { endLLAFromPointBearing } from 'osh-js/source/core/utils/GeoUtils';
 import { assertObject, hasValue } from 'osh-js/source/core/utils/Utils';
 import Layer from '../Layer.js';
