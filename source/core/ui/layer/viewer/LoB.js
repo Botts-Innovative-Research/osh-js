@@ -11,9 +11,6 @@ class LoBLayer extends Layer {
 	 * @param {Object[]} [properties.locations] - defines the default location of the LoB [lat, lon]
 	 * @param {Number} [properties.bearing=0] - defines the bearing of the LoB in degrees
 	 * @param {Number} [properties.length=1000] - defines the length of the LoB in meters
-	 * @param {Number} [properties.icon] - defines the icon image of the point marker
-	 * @param {String} [properties.iconColor="#000000"] - the icon color
-	 * @param {Number[]} [properties.iconSize=[16,16]] - defines the icon size of the point marker
 	 * @param {Number[]} [properties.labelOffset=[0,0]] - defines the label offset of the point marker
 	 * @param {String} [properties.color='red'] - defines the color of the LoB
 	 * @param {Number} [properties.weight=1] - defines the weight of the LoB
@@ -24,7 +21,6 @@ class LoBLayer extends Layer {
 	 * @param {Function} [properties.getOrigin] - defines a function to return the origin point {x:lat, y:lon}
 	 * @param {Function} [properties.getOriginAndBearing] - defines a function to return both origin and bearing {origin: {x:lat, y:lon}, bearing: number}
 	 * @param {Function} [properties.getColor] - defines a function to return the color
-	 * @param {Function} [properties.getIconColor]
 	 */
 	constructor(properties) {
 		super(properties);
@@ -45,12 +41,6 @@ class LoBLayer extends Layer {
 			maxPoints: 2,
 			location: null,
 			orientation: {heading: 0},
-			icon: null,
-			iconAnchor: [16, 16],
-			iconSize: [16, 16],
-			iconScale: 1.0,
-			iconColor: undefined,
-			iconOpacity: 0.75,
 			label: null,
 			labelColor: undefined,
 			labelOutlineColor: undefined,
@@ -63,7 +53,6 @@ class LoBLayer extends Layer {
 			zIndex: 0,
 			allowBillboardRotation: true,
 			options: {},
-			getIcon: null,
 			getLabel: null,
 			clampToGround: true,
 		};
@@ -102,22 +91,6 @@ class LoBLayer extends Layer {
 			props.opacity = properties.opacity;
 		}
 
-		if (hasValue(properties.icon)) {
-			props.icon = properties.icon;
-		}
-
-		if (hasValue(properties.iconSize)) {
-			props.iconSize = properties.iconSize;
-		}
-
-		if (hasValue(properties.iconColor)) {
-			props.iconColor = properties.iconColor;
-		}
-
-		if (hasValue(properties.iconOpacity)) {
-			props.iconOpacity = properties.iconOpacity;
-		}
-
 		if (hasValue(properties.labelOffset)) {
 			props.labelOffset = properties.labelOffset;
 		}
@@ -126,11 +99,6 @@ class LoBLayer extends Layer {
 			props.polylineId = properties.polylineId;
 		} else if (isDefined(properties.lobId)) {
 			props.polylineId = properties.lobId;
-		}
-		if (isDefined(properties.markerId)) {
-			props.markerId = properties.markerId;
-		} else if (isDefined(properties.lobId)) {
-			props.markerId = properties.lobId;
 		}
 		if (isDefined(properties.clampToGround)) {
 			props.clampToGround = properties.clampToGround;
@@ -141,7 +109,6 @@ class LoBLayer extends Layer {
 		if (this.checkFn("getLobId")) {
 			const syncIds = async (rec, timestamp, options) => {
 				this.updateProperty('polylineId', this.getId());
-				this.updateProperty('markerId', this.getId());
 			};
 			this.addFn(this.getDataSourcesIdsByProperty('getLobId'), syncIds);
 		}
@@ -204,10 +171,6 @@ class LoBLayer extends Layer {
 			this.addFn(this.getDataSourcesIdsByProperty('getOriginAndBearing'), fn);
 		}
 
-		if (this.checkFn("getIcon")) {
-			this.updateProperty('icon', this.getFunc('getIcon'));
-		}
-
 		if (this.checkFn("getLabel")) {
 			this.updateProperty('label', this.getFunc('getLabel'));
 		}
@@ -220,13 +183,6 @@ class LoBLayer extends Layer {
 				);
 			};
 			this.addFn(this.getDataSourcesIdsByProperty('getColor'), fn);
-		}
-
-		if (this.checkFn("getIconColor")) {
-			let fn = async (rec, timestamp, options) => {
-				this.updateProperty('iconColor',await this.getFunc('getIconColor')(rec, timestamp, options));
-			};
-			this.addFn(this.getDataSourcesIdsByProperty('getIconColor'), fn);
 		}
 	}
 }

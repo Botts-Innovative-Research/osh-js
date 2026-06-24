@@ -85,8 +85,7 @@ class MapView extends View {
      * @param {Object} markerObject - the Map marker object
      */
     async addMarkerToLayer(props, markerObject) {
-        // Use props.id for LoB
-        this.layerIdToMarkers[props.markerId ?? props.id] = markerObject;
+        this.layerIdToMarkers[props.markerId] = markerObject;
     }
 
     /**
@@ -155,11 +154,10 @@ class MapView extends View {
      * @param {PointMarkerLayer.props} props - the Layer Object
      */
     getMarker(props) {
-        // Use props.id for LoB
-        if(!(props.markerId in this.layerIdToMarkers) && !(props.id in this.layerIdToMarkers)) {
+        if(!(props.markerId in this.layerIdToMarkers)) {
             return null;
         }
-        return this.layerIdToMarkers[props.markerId ?? props.id];
+        return this.layerIdToMarkers[props.markerId];
     }
 
     /**

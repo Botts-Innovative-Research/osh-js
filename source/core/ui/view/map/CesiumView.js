@@ -632,7 +632,6 @@ class CesiumView extends MapView {
 
     // ----- LINE OF BEARING (LOB)
     addLob(properties, entity= undefined) {
-        let marker = this.addMarker(properties, entity);
         let polyline = this.addPolyline(properties);
     }
 
@@ -640,13 +639,11 @@ class CesiumView extends MapView {
         if (!isDefined(props.location)) {
             return;
         }
-        this.updateMarker(props);
         this.updatePolyline(props);
         this.render();
     }
 
     removeLobFromLayer(entity, markerId) {
-        this.removeMarkerFromLayer(entity, markerId);
         this.removePolylineFromLayer(entity)
         this.render();
     }
