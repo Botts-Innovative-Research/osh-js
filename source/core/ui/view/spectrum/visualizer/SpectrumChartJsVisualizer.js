@@ -10,7 +10,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {Chart, registerables} from 'chart.js';
-import {assertDefined, isDefined, merge, randomUUID} from '../../../../../utils/Utils.js';
+import {assertDefined, isDefined, merge, randomUUID} from '../../../../utils/Utils.js';
 
 /**
  * Chart.js line-chart visualizer for RF/signal spectrum data.
