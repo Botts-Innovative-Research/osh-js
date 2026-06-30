@@ -659,13 +659,12 @@ class LeafletView extends MapView {
     /**
      * Adds a line of bearing (lob) to the map.
      * @param props
-     * @returns {{marker: null, polyline: *}}
+     * @returns {polyline}
      */
     addLob(props) {
-        let marker = this.addMarker(props);
         let polyline = this.addPolyline(props);
 
-        return {marker: marker, polyline: polyline};
+        return polyline;
     }
 
     /**
@@ -675,7 +674,6 @@ class LeafletView extends MapView {
      */
     async updateLob(props) {
         let lob = this.getLob(props);
-        this.updateMarker(props);
         this.updatePolyline(props);
     }
 
