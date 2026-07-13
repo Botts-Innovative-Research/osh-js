@@ -27,6 +27,11 @@ class FFMPEG360View extends FFMPEGView {
 		this.projection = projection;
 		if (this.yuvCanvas) this.canvas360.setProjection(projection);
 	}
+
+	destroy() {
+		this.canvas360?.dispose();
+		super.destroy();
+	}
 }
 
 export default FFMPEG360View;

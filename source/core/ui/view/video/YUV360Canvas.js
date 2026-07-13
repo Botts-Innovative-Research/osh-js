@@ -219,6 +219,21 @@ class YUV360Canvas extends YUVCanvas {
 		this._initCameraControls();
 	}
 
+	dispose() {
+		if (this._domListeners) {
+			for (const { target, type, handler, options } of this._domListeners) {
+				target.removeEventListener(type, handler, options);
+			}
+			this._domListeners = [];
+		}
+
+		const gl = this.contextGL;
+		if (gl) {
+			gl.getExtension('WEBGL_lose_context')?.loseContext();
+			this.contextGL = null;
+		}
+	}
+
 	// ─────────────────────────────────────────────────────────────────────────
 	// Public API
 	// ─────────────────────────────────────────────────────────────────────────
@@ -502,6 +517,13 @@ class YUV360Canvas extends YUVCanvas {
 		let lastX    = 0;
 		let lastY    = 0;
 
+		this._domListeners = [];
+
+		const add = (target, type, handler, options) => {
+			target.addEventListener(type, handler, options);
+			this._domListeners.push({ target, type, handler, options });
+		};
+
 		const onDragStart = (x, y) => { dragging = true; lastX = x; lastY = y; };
 		const onDragMove  = (x, y) => {
 			if (!dragging) return;
@@ -515,10 +537,35 @@ class YUV360Canvas extends YUVCanvas {
 		};
 		const onDragEnd = () => { dragging = false; };
 
-		canvas.addEventListener('mousedown', (e) => onDragStart(e.clientX, e.clientY));
-		window.addEventListener('mousemove', (e) => onDragMove(e.clientX, e.clientY));
-		window.addEventListener('mouseup',   onDragEnd);
+		const onWheel = (e) => {
+			e.preventDefault();
+			this.fovDeg = Math.max(30, Math.min(120, this.fovDeg + e.deltaY * 0.05));
+		};
 
+		const onTouchStart = (e) => {
+			if (e.touches.length === 1) { e.preventDefault(); onDragStart(e.touches[0].clientX, e.touches[0].clientY); }
+		};
+
+		const onTouchMove = (e) => {
+			if (e.touches.length === 1) { e.preventDefault(); onDragMove(e.touches[0].clientX, e.touches[0].clientY); }
+		};
+
+		let lastPinchDist = null;
+		const onTouchPinchStart = (e) => {
+			if (e.touches.length === 2) lastPinchDist = this._pinchDist(e.touches);
+		};
+
+		const onTouchPinchMove = (e) => {
+			if (e.touches.length === 2 && lastPinchDist !== null) {
+				const dist  = this._pinchDist(e.touches);
+				this.fovDeg = Math.max(30, Math.min(120, this.fovDeg - (dist - lastPinchDist) * 0.1));
+				lastPinchDist = dist;
+			}
+		};
+
+		const onTouchPinchEnd = () => { lastPinchDist = null; };
+
+		/*
 		canvas.addEventListener('wheel', (e) => {
 			e.preventDefault();
 			this.fovDeg = Math.max(30, Math.min(120, this.fovDeg + e.deltaY * 0.05));
@@ -532,7 +579,7 @@ class YUV360Canvas extends YUVCanvas {
 		}, { passive: false });
 		window.addEventListener('touchend', onDragEnd);
 
-		let lastPinchDist = null;
+		//let lastPinchDist = null;
 		canvas.addEventListener('touchstart', (e) => {
 			if (e.touches.length === 2) lastPinchDist = this._pinchDist(e.touches);
 		}, { passive: true });
@@ -545,6 +592,21 @@ class YUV360Canvas extends YUVCanvas {
 		}, { passive: true });
 		canvas.addEventListener('touchend',    () => { lastPinchDist = null; });
 		canvas.addEventListener('touchcancel', () => { lastPinchDist = null; });
+
+		 */
+
+
+		add(canvas, 'mousedown', (e) => onDragStart(e.clientX, e.clientY));
+		add(window, 'mousemove', (e) => onDragMove(e.clientX, e.clientY));
+		add(window, 'mouseup',   onDragEnd);
+		add(canvas, 'wheel', onWheel, { passive: false });
+		add(canvas, 'touchstart', onTouchStart, { passive: false });
+		add(window, 'touchmove', onTouchMove, { passive: false });
+		add(window, 'touchend', onDragEnd);
+		add(canvas, 'touchstart', onTouchPinchStart, { passive: true });
+		add(canvas, 'touchmove', onTouchPinchMove, { passive: true });
+		add(canvas, 'touchend',    onTouchPinchEnd);
+		add(canvas, 'touchcancel', onTouchPinchEnd);
 	}
 
 	_pinchDist(touches) {
