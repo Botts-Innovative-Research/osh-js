@@ -1,7 +1,7 @@
 import MjpegView from "./MjpegView";
 import WebCodecView from "./WebCodecView";
 import FFMPEGView from "./FFMPEGView";
-import FFMPEG360View from "/lib/osh-js/source/core/ui/view/video/FFMPEG360View";
+import FFMPEG360View from "./FFMPEG360View";
 import View from "../View";
 import {isDefined} from "../../../utils/Utils";
 
