@@ -55,6 +55,8 @@ import {
     ColorBlendMode,
     PerspectiveFrustum,
     FrustumGeometry,
+    FrustumOutlineGeometry,
+    PerInstanceColorAppearance,
     VertexFormat,
     CoplanarPolygonGeometry,
     GroundPolylineGeometry,
