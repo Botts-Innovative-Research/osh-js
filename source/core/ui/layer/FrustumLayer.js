@@ -43,6 +43,7 @@ class frustumLayer extends Layer {
         super.init(properties);
         const props = {
             color : 'rgb(255,0,0)',
+            borderColor: 'rgb(255,0,0)',
             opacity : 0.5,
             origin : null,
             fov : null,
@@ -56,6 +57,10 @@ class frustumLayer extends Layer {
 
         if(isDefined(properties.color)){
             props.color = properties.color;
+        }
+
+        if(isDefined(properties.borderColor)){
+            props.borderColor = properties.borderColor;
         }
 
         if(isDefined(properties.opacity)){
@@ -89,6 +94,13 @@ class frustumLayer extends Layer {
                 this.updateProperty('color',await this.getFunc('getColor')(rec, timestamp, options));
             };
             this.addFn(this.getDataSourcesIdsByProperty('getColor'),fn);
+        }
+
+        if(isDefined(properties.getBorderColor)) {
+            let fn = async (rec, timestamp, options) => {
+                this.updateProperty('borderColor',await this.getFunc('getBorderColor')(rec, timestamp, options));
+            };
+            this.addFn(this.getDataSourcesIdsByProperty('getBorderColor'),fn);
         }
 
         if(isDefined(properties.getOrigin)) {
