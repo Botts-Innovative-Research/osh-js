@@ -55,8 +55,6 @@ import {
     ColorBlendMode,
     PerspectiveFrustum,
     FrustumGeometry,
-    FrustumOutlineGeometry,
-    PerInstanceColorAppearance,
     VertexFormat,
     CoplanarPolygonGeometry,
     GroundPolylineGeometry,
@@ -1313,7 +1311,9 @@ class CesiumView extends MapView {
                     orientation: quat,
                 }),
                 attributes: {
-                    color: Color.fromCssColorString(properties.borderColor),
+                    color: ColorGeometryInstanceAttribute.fromColor(
+                        Color.fromCssColorString(properties.borderColor)
+                    ),
                 },
             }),
             appearance: new PerInstanceColorAppearance({
