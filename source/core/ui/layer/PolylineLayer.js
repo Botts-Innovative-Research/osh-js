@@ -170,7 +170,10 @@ class PolylineLayer extends Layer {
 
 	clear() {
 		const currentProps = this.getCurrentProps();
-		currentProps.locations = [];
+		
+		if (currentProps) {
+			currentProps.locations = [];
+		}
 	}
 }
 
