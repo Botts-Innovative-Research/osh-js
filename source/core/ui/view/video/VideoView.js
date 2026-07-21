@@ -52,13 +52,16 @@ class VideoView extends View {
     }
 
     createVideoView(compression) {
-        if (this.props360 != null) {
+        if (this.props360 != null && compression !== 'jpeg') {
             this.videoView = new FFMPEG360View({
                 ...this.properties,
                 codec: compression,
                 layers: []
             });
-        } else if(compression === 'jpeg') {
+        } else if (compression === 'jpeg') {
+            if (this.props360 != null) {
+                console.warn('VideoView: 360 display is not supported for MJPEG streams; falling back to standard MjpegView.');
+            }
             // create MJPEG View
             this.videoView = new MjpegView({
                 ...this.properties,
