@@ -55,6 +55,8 @@ import {
     ColorBlendMode,
     PerspectiveFrustum,
     FrustumGeometry,
+    FrustumOutlineGeometry,
+    PerInstanceColorAppearance,
     VertexFormat,
     CoplanarPolygonGeometry,
     GroundPolylineGeometry,
@@ -1303,8 +1305,30 @@ class CesiumView extends MapView {
             show: properties.visible
         });
 
+        const outlinePrimitive = new Primitive({
+            geometryInstances: new GeometryInstance({
+                geometry: new FrustumOutlineGeometry({
+                    frustum,
+                    origin,
+                    orientation: quat,
+                }),
+                attributes: {
+                    color: ColorGeometryInstanceAttribute.fromColor(
+                        Color.fromCssColorString(properties.borderColor)
+                    ),
+                },
+            }),
+            appearance: new PerInstanceColorAppearance({
+                flat: true,
+                translucent: false,
+                grid: true,
+            }),
+            asynchronous: false,
+        });
+
         const collection = new PrimitiveCollection();
         collection.add(frustumPrimitive);
+        collection.add(outlinePrimitive);
         this.viewer.scene.primitives.add(collection);
         return collection;
     }
