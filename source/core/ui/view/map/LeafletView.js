@@ -18,6 +18,7 @@ import {isDefined, assertDefined} from "../../../utils/Utils.js";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import MapView from "./MapView";
+import {updateMarkerContent} from "./MarkerContent";
 
 /**
  * This class is in charge of displaying GPS/orientation data by adding a marker to the Leaflet Map object.
@@ -417,25 +418,7 @@ class LeafletView extends MapView {
             });
         }
 
-        if (properties.label !== null) {
-            marker.bindTooltip(properties.label, {
-                permanent: false,
-                direction: 'center',
-                offset: L.point(properties.labelOffset[0], properties.labelOffset[1]),
-            });
-        }
-
-        let name =
-            properties.hasOwnProperty('name') && properties.label != null ? properties.label : '';
-        let desc =
-            properties.hasOwnProperty('description') && properties.description != null
-                ? properties.description
-                : '';
-        if (!isDefined(properties.onLeftClick) && (name.length > 0 || desc.length > 0)) {
-            marker.bindPopup(name + '<div>' + desc + '</div>', {
-                offset: L.point(properties.labelOffset[0], properties.labelOffset[1]),
-            });
-        }
+        updateMarkerContent(marker, properties, L.point);
 
         marker.setZIndexOffset(properties.zIndex);
         marker.id = properties.id + '$' + (properties.markerId ?? properties.id);
@@ -525,6 +508,8 @@ class LeafletView extends MapView {
         if (isDefined(props.orientation)) {
             marker.setRotationAngle(props.orientation.heading);
         }
+
+        updateMarkerContent(marker, props, L.point);
 
         if (props.icon !== null && marker._icon.iconUrl !== props.icon) {
             // updates icon
