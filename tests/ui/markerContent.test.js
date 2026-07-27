@@ -5,6 +5,7 @@ import {
     updateMarkerContent,
 } from '../../source/core/ui/view/map/MarkerContent';
 
+// REQ-VPM-002/003; SCENARIO-VPM-SAFETY-001 and SCENARIO-VPM-DETAIL-001.
 describe('Leaflet marker content', () => {
     test('escapes record-controlled marker labels', () => {
         const label = '<img src=x onerror="alert(1)"> & \'quoted\'';
