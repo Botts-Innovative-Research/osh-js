@@ -16,6 +16,7 @@
 
 import ConSysApiContext from "./ConSysApi.context";
 import DataStream from "../../../consysapi/datastream/DataStream";
+import {Status} from "../../../connector/Status.js";
 import {isDefined} from "../../../utils/Utils";
 import ControlStream from "../../../consysapi/controlstream/ControlStream";
 
@@ -79,12 +80,22 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
                 }
             }
         }
-        this.streamObject.stream().onChangeStatus = this.onChangeStatus.bind(this);
+        if (isDefined(this.streamObject)) {
+            this.streamObject.stream().onChangeStatus = this.onStreamConnectorStatus.bind(this);
+        }
     }
 
+    onStreamConnectorStatus(status) {
+        if (this.onChangeStatus) {
+            this.onChangeStatus(status);
+        }
+        if (status === Status.CONNECTED && this.streamObject && this.streamObject.searchObservations) {
+            this.scheduleFetchLatestObservations();
+        }
+    }
 
     /**
-     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
+     * 150ms debounce on fetchLatestObservationsWithRetry
      */
     scheduleFetchLatestObservations() {
         if (this._fetchLatestDebounce) {
@@ -130,7 +141,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
             }
         }
         if (lastErr) {
-            console.error('[SweApiRealTimeContext] fetch latest observations failed after retries', lastErr);
+            console.error('[ConSysApiRealTimeContext] fetch latest observations failed after retries', lastErr);
         }
     }
     onStreamMessage(messages, format) {
