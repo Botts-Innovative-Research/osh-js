@@ -74,6 +74,9 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
 
     connect() {
         this.streamFunction();
+        if (this.streamObject && this.streamObject.searchObservations) {
+            this.scheduleFetchLatestObservations();
+        }
     }
 
     async disconnect() {
