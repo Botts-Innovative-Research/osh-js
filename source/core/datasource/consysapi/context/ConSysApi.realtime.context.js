@@ -19,6 +19,25 @@ import DataStream from "../../../consysapi/datastream/DataStream";
 import {isDefined} from "../../../utils/Utils";
 import ControlStream from "../../../consysapi/controlstream/ControlStream";
 
+
+/**
+ * Backoff schedule (in milliseconds) used by {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
+ * when attempting to retrieve the most recent observation after a (re)connection.
+ *
+ * @type {number[]}
+ */
+const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
+
+/**
+ * Promisified `setTimeout` used to await between retry attempts without blocking the event loop.
+ *
+ * @param {number} ms - Number of milliseconds to wait before the returned promise resolves.
+ * @returns {Promise<void>} A promise that resolves once `ms` milliseconds have elapsed.
+ */
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class ConSysApiRealTimeContext extends ConSysApiContext {
     init(properties) {
         this.properties = properties;
@@ -61,6 +80,58 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
             }
         }
         this.streamObject.stream().onChangeStatus = this.onChangeStatus.bind(this);
+    }
+
+
+    /**
+     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
+     */
+    scheduleFetchLatestObservations() {
+        if (this._fetchLatestDebounce) {
+            clearTimeout(this._fetchLatestDebounce);
+        }
+        this._fetchLatestDebounce = setTimeout(() => {
+            this._fetchLatestDebounce = undefined;
+            this.fetchLatestObservationsWithRetry();
+        }, 150);
+    }
+
+    /**
+     * Fetches the most recent observation from the SWE API DataStream with a retry/backoff loop.
+     *
+     * No-op if the underlying `streamObject` is not a DataStream (i.e. has no
+     * `searchObservations`)
+     *
+     * @returns {Promise<void>} Resolves when either the latest observation has been delivered
+     *                          to {@link handleData} or all retry attempts have been exhausted.
+     */
+    async fetchLatestObservationsWithRetry() {
+        if (!this.streamObject || !this.streamObject.searchObservations) {
+            return;
+        }
+        const responseFormat = this.properties.responseFormat;
+        let lastErr;
+        for (let i = 0; i < FETCH_LATEST_RETRY_DELAYS_MS.length; i++) {
+            await delay(FETCH_LATEST_RETRY_DELAYS_MS[i]);
+            try {
+                const filter = this.createObservationFilter(this.properties);
+                filter.props.phenomenonTime = 'now';
+                const collection = await this.streamObject.searchObservations(filter);
+                const data = await collection.nextPage();
+                if (data && data.length) {
+                    data.forEach(d => {
+                        d.version = this.properties.version;
+                    });
+                    this.handleData(data, responseFormat);
+                    return;
+                }
+            } catch (err) {
+                lastErr = err;
+            }
+        }
+        if (lastErr) {
+            console.error('[SweApiRealTimeContext] fetch latest observations failed after retries', lastErr);
+        }
     }
     onStreamMessage(messages, format) {
          // in case of om+json ,we have to add the timestamp which is not included for each record but at the root level
