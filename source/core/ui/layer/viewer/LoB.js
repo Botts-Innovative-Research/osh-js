@@ -1,4 +1,3 @@
-
 import { assertArray, isDefined } from 'osh-js/source/core/utils/Utils';
 import { endLLAFromPointBearing } from 'osh-js/source/core/utils/GeoUtils';
 import { assertObject, hasValue } from 'osh-js/source/core/utils/Utils';
@@ -116,8 +115,8 @@ class LoBLayer extends Layer {
 		if (this.checkFn("getOrigin")) {
 			const fn = async (rec, timestamp, options) => {
 				const origin = await this.getFunc('getOrigin')(rec, timestamp, options);
-				if (!origin){
-					console.warn('[LOB] getOrigin is invalid')
+				if (!origin || typeof origin.x === 'undefined' || typeof origin.y === 'undefined') {
+					console.warn('[LOB] getOrigin returned invalid origin:', origin);
 					return;
 				}
 				const currentProps = this.getCurrentProps();
@@ -135,6 +134,12 @@ class LoBLayer extends Layer {
 		if (this.checkFn("getBearing")) {
 			const fn = async(rec, timestamp, options) => {
 				const bearing = await this.getFunc('getBearing')(rec, timestamp, options);
+				if (!isDefined(bearing) || isNaN(bearing)) {
+					console.warn('[LOB] getBearing returned invalid bearing:', bearing);
+					return;
+				}
+				// persist the bearing so getOrigin updates keep the latest direction
+				this.updateProperty('bearing', bearing);
 				const currentProps = this.getCurrentProps();
 				if (!currentProps.locations || !currentProps.locations[0]) {
 					console.warn('[LOB] getBearing called but origin not set');
@@ -152,19 +157,25 @@ class LoBLayer extends Layer {
 
 		if (this.checkFn("getOriginAndBearing")) {
 			const fn = async(rec, timestamp, options) => {
-				console.log('[LoB] getOriginAndBearing called');
 				const { origin, bearing } = await this.getFunc('getOriginAndBearing')(rec, timestamp, options);
+				const currentProps = this.getCurrentProps();
+				let effectiveBearing = bearing;
+				if (!isDefined(bearing) || isNaN(bearing)) {
+					console.warn('[LoB] getOriginAndBearing returned invalid bearing, using last known:', bearing);
+					effectiveBearing = currentProps.bearing;
+				} else {
+					// persist the bearing so getOrigin updates keep the latest direction
+					this.updateProperty('bearing', bearing);
+				}
 				if (!origin || typeof origin.x === 'undefined' || typeof origin.y === 'undefined') {
 					console.warn('[LoB] getOriginAndBearing returned invalid origin:', origin);
 					return;
 				}
-				const currentProps = this.getCurrentProps();
 				const endPoint = endLLAFromPointBearing(
 					origin,
-					bearing,
+					effectiveBearing,
 					currentProps.length
 				);
-				console.log('[LoB] getOriginAndBearing', origin, bearing, endPoint);
 				this.updateProperty('location', origin);
 				this.updateProperty('locations', [origin, endPoint]);
 			}
