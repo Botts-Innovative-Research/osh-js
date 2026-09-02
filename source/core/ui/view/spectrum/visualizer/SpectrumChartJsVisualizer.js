@@ -34,7 +34,7 @@ class SpectrumChartJsVisualizer {
      * @param {Object} properties
      * @param {string} properties.container - DOM element id to append the canvas to (required)
      * @param {string} [properties.css=''] - CSS class(es) to set on the canvas element
-     * @param {Object} [properties.options={}] - Chart.js options to merge with defaults
+     * @param {Object} [properties.options={}] - Chart.js options to merge with defaults (https://www.chartjs.org/docs/latest/charts/line.html)
      * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides
      */
     constructor(properties) {
@@ -137,8 +137,8 @@ class SpectrumChartJsVisualizer {
     /**
      * Render one spectrum frame.
      * @param {Object} decoded
-     * @param {number[]|Float32Array} decoded.freqAxis  - Frequency values in Hz
-     * @param {number[]|Float32Array} decoded.amplitude - Amplitude values in dBFS
+     * @param {number[]|Float32Array} decoded.xAxisValues  - X-axis values (e.g. frequency in Hz)
+     * @param {number[]|Float32Array} decoded.yAxisValues  - Y-axis values (e.g. amplitude in dBFS)
      * @param {number}                decoded.timestamp - ms epoch
      * @param {string}                decoded.channel   - channel identifier
      */
@@ -147,13 +147,13 @@ class SpectrumChartJsVisualizer {
             return;
         }
 
-        const freqAxis  = decoded.freqAxis  || [];
-        const amplitude = decoded.amplitude || [];
-        const len = Math.min(freqAxis.length, amplitude.length);
+        const xValues = decoded.xAxisValues || [];
+        const yValues = decoded.yAxisValues || [];
+        const len = Math.min(xValues.length, yValues.length);
 
         const points = [];
         for (let i = 0; i < len; i++) {
-            points.push({x: freqAxis[i] / 1e6, y: amplitude[i]});
+            points.push({x: xValues[i] / 1e6, y: yValues[i]});
         }
 
         this.dataset.data = points;

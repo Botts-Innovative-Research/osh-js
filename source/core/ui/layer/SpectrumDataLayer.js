@@ -18,15 +18,15 @@ import Layer from "./Layer.js";
 import {isDefined} from "../../utils/Utils.js";
 
 /**
- * Layer for RF/signal spectrum observations delivered as pre-analyzed frequency/amplitude arrays.
+ * Layer for spectrum / chart observations delivered as pre-analyzed X/Y value arrays.
  * Extends Layer directly (same base as BinaryDataLayer) so that the addFn / definedId /
  * updateProperty pipeline works correctly through Layer.setData().
  *
  * Each observation provides:
- *   getFrequencyAxis(rec) → number[] | Float32Array   (Hz values)
- *   getAmplitude(rec)     → number[] | Float32Array   (dBFS values)
- *   getTimestamp(rec)     → number                    (ms epoch)
- *   getChannel(rec)       → string                    (e.g. "ch0")
+ *   getXAxisValues(rec) → number[] | Float32Array   (X-axis values, e.g. frequency in Hz)
+ *   getYAxisValues(rec) → number[] | Float32Array   (Y-axis values, e.g. amplitude in dBFS)
+ *   getTimestamp(rec)   → number                    (ms epoch)
+ *   getChannel(rec)     → string                    (e.g. "ch0")
  *
  * @extends Layer
  * @example
@@ -35,10 +35,10 @@ import {isDefined} from "../../utils/Utils.js";
  *
  * const layer = new SpectrumDataLayer({
  *     dataSourceId: myDataSource.id,
- *     getFrequencyAxis: (rec) => rec.kraken_spectrum.frequency_axis,
- *     getAmplitude:     (rec) => rec.kraken_spectrum.amplitude,
- *     getTimestamp:     (rec) => new Date(rec.kraken_spectrum.time).getTime(),
- *     getChannel:       (rec) => rec.kraken_spectrum.channel,
+ *     getXAxisValues: (rec) => rec.kraken_spectrum.frequency_axis,
+ *     getYAxisValues: (rec) => rec.kraken_spectrum.amplitude,
+ *     getTimestamp:   (rec) => new Date(rec.kraken_spectrum.time).getTime(),
+ *     getChannel:     (rec) => rec.kraken_spectrum.channel,
  * });
  */
 class SpectrumDataLayer extends Layer {
@@ -53,26 +53,26 @@ class SpectrumDataLayer extends Layer {
         super.init(properties);
 
         const props = {
-            freqAxis:  [],
-            amplitude: [],
+            xAxisValues:  [],
+            yAxisValues: [],
             timestamp: 0,
             channel:   ''
         };
 
         this.definedId('spectrumDataId', props);
 
-        if (isDefined(properties.getFrequencyAxis)) {
+        if (isDefined(properties.getXAxisValues)) {
             let fn = async (rec, timestamp, options) => {
-                this.updateProperty('freqAxis', await this.getFunc('getFrequencyAxis')(rec, timestamp, options));
+                this.updateProperty('xAxisValues', await this.getFunc('getXAxisValues')(rec, timestamp, options));
             };
-            this.addFn(this.getDataSourcesIdsByProperty('getFrequencyAxis'), fn);
+            this.addFn(this.getDataSourcesIdsByProperty('getXAxisValues'), fn);
         }
 
-        if (isDefined(properties.getAmplitude)) {
+        if (isDefined(properties.getYAxisValues)) {
             let fn = async (rec, timestamp, options) => {
-                this.updateProperty('amplitude', await this.getFunc('getAmplitude')(rec, timestamp, options));
+                this.updateProperty('yAxisValues', await this.getFunc('getYAxisValues')(rec, timestamp, options));
             };
-            this.addFn(this.getDataSourcesIdsByProperty('getAmplitude'), fn);
+            this.addFn(this.getDataSourcesIdsByProperty('getYAxisValues'), fn);
         }
 
         if (isDefined(properties.getTimestamp)) {

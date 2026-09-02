@@ -16,7 +16,7 @@ import {isDefined} from "../../../utils/Utils.js";
  * Pure data-forwarding view for RF/signal spectrum observations.
  * Pairs with {@link SpectrumDataLayer} and one or more {@link SpectrumChartJsVisualizer}
  * instances.  No Web Audio API, no decoder, no AudioContext — incoming
- * { freqAxis, amplitude, timestamp, channel } objects are forwarded directly
+ * { xAxisValues, yAxisValues, timestamp, channel } objects are forwarded directly
  * to each registered visualizer.
  *
  * @extends View
@@ -76,10 +76,10 @@ class SpectrumView extends View {
             for (let i = 0; i < values.length; i++) {
                 const value = values[i];
                 const decoded = {
-                    freqAxis:  value.freqAxis,
-                    amplitude: value.amplitude,
-                    timestamp: value.timestamp,
-                    channel:   value.channel,
+                    xAxisValues:  value.xAxisValues,
+                    yAxisValues:  value.yAxisValues,
+                    timestamp:    value.timestamp,
+                    channel:      value.channel,
                 };
                 for (let visualizer of this.visualizers) {
                     visualizer.draw(decoded);
