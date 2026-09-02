@@ -35,7 +35,7 @@ class SpectrumChartJsVisualizer {
      * @param {string} properties.container - DOM element id to append the canvas to (required)
      * @param {string} [properties.css=''] - CSS class(es) to set on the canvas element
      * @param {Object} [properties.options={}] - Chart.js options to merge with defaults (https://www.chartjs.org/docs/latest/charts/line.html)
-     * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides
+     * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides (https://www.chartjs.org/docs/latest/charts/line.html#dataset-properties)
      */
     constructor(properties) {
         assertDefined(properties && properties.container, 'container must be defined in constructor argument');
@@ -99,7 +99,7 @@ class SpectrumChartJsVisualizer {
 
         if (isDefined(properties)) {
             if (properties.hasOwnProperty('options')) {
-                merge(properties.options, this.options);
+                merge(this.options, properties.options);
             }
         }
 
