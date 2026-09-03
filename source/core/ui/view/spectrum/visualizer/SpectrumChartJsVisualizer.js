@@ -36,7 +36,7 @@ class SpectrumChartJsVisualizer {
      * @param {string} [properties.css=''] - CSS class(es) to set on the canvas element
      * @param {Object} [properties.options={}] - Chart.js options to merge with defaults (https://www.chartjs.org/docs/latest/charts/line.html)
      * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides (https://www.chartjs.org/docs/latest/charts/line.html#dataset-properties)
-     * @param {boolean} [properties.zoomEnabled=false] - Enable pan/zoom via chartjs-plugin-zoom (requires 'chartjs-plugin-zoom' to be installed)
+     * @param {boolean} [properties.zoomEnabled=false] - Enable pan/zoom via chartjs-plugin-zoom (requires 'chartjs-plugin-zoom' to be installed on client)
      * @param {Object} [properties.zoomOptions={}] - chartjs-plugin-zoom options to merge with defaults (https://www.chartjs.org/chartjs-plugin-zoom/latest/guide/options.html)
      */
     constructor(properties) {
