@@ -36,16 +36,24 @@ class SpectrumChartJsVisualizer {
      * @param {string} [properties.css=''] - CSS class(es) to set on the canvas element
      * @param {Object} [properties.options={}] - Chart.js options to merge with defaults (https://www.chartjs.org/docs/latest/charts/line.html)
      * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides (https://www.chartjs.org/docs/latest/charts/line.html#dataset-properties)
+     * @param {boolean} [properties.zoomEnabled=false] - Enable pan/zoom via chartjs-plugin-zoom (requires 'chartjs-plugin-zoom' to be installed)
+     * @param {Object} [properties.zoomOptions={}] - chartjs-plugin-zoom options to merge with defaults (https://www.chartjs.org/chartjs-plugin-zoom/latest/guide/options.html)
      */
     constructor(properties) {
         assertDefined(properties && properties.container, 'container must be defined in constructor argument');
         this.properties = {
             css: '',
+            zoomEnabled: false,
             ...properties,
         };
         this.id = randomUUID();
         this.resetting = false;
+        this.zoomReady = false;
         this.initChart(properties);
+
+        if (this.properties.zoomEnabled) {
+            this.initZoom(properties);
+        }
     }
 
     initChart(properties) {
@@ -123,6 +131,39 @@ class SpectrumChartJsVisualizer {
         };
 
         this.chart.data.datasets.push(this.dataset);
+    }
+
+    async initZoom(properties) {
+        try {
+            const zoomModule = await import('chartjs-plugin-zoom');
+            const zoomPlugin = zoomModule.default || zoomModule;
+            Chart.register(zoomPlugin);
+
+            const defaultZoomOptions = {
+                zoom: {
+                    wheel: {enabled: true},
+                    pinch: {enabled: true},
+                    mode: 'xy',
+                },
+                pan: {
+                    enabled: true,
+                    mode: 'xy',
+                },
+            };
+
+            if (isDefined(properties) && properties.hasOwnProperty('zoomOptions')) {
+                merge(defaultZoomOptions, properties.zoomOptions);
+            }
+
+            this.chart.options.plugins.zoom = defaultZoomOptions;
+            this.chart.update('none');
+            this.zoomReady = true;
+        } catch (e) {
+            console.error(
+                '[SpectrumChartJsVisualizer] zoomEnabled is true but "chartjs-plugin-zoom" could not be loaded. ' +
+                'Install it with: npm install chartjs-plugin-zoom'
+            );
+        }
     }
 
     /**
