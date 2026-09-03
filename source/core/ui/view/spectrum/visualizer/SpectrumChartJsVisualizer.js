@@ -135,7 +135,7 @@ class SpectrumChartJsVisualizer {
 
     async initZoom(properties) {
         try {
-            const zoomModule = await import('chartjs-plugin-zoom');
+            const zoomModule = await import(/* webpackIgnore: true */ 'chartjs-plugin-zoom');
             const zoomPlugin = zoomModule.default || zoomModule;
             Chart.register(zoomPlugin);
 
@@ -160,7 +160,7 @@ class SpectrumChartJsVisualizer {
             this.zoomReady = true;
         } catch (e) {
             console.error(
-                '[SpectrumChartJsVisualizer] zoomEnabled is true but "chartjs-plugin-zoom" could not be loaded. ' +
+                '[OSH-JS: SpectrumChartJsVisualizer] zoomEnabled is true but "chartjs-plugin-zoom" could not be loaded. ' +
                 'Install it with: npm install chartjs-plugin-zoom'
             );
         }
