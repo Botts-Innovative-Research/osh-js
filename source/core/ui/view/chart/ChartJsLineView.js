@@ -37,13 +37,12 @@ import {Chart, registerables} from 'chart.js';
  *     layers: [myLineLayer],
  * });
  *
- * // Accumulation mode (time-series)
+ * // Accumulation mode (time-series, buffer up to 200 values)
  * const view = new ChartJsLineView({
  *     container: 'chart-div',
  *     chartType: 'time',
  *     yAxisLabel: 'Temperature (C)',
- *     seriesQty: 2,
- *     maxValues: 200,
+ *     seriesQty: 200,
  *     refreshRate: 500,
  *     layers: [myLineLayer],
  * });
@@ -61,8 +60,7 @@ class ChartJsLineView extends View {
      * @param {boolean} [properties.isZoomable=false] - Enable wheel/pinch zoom (requires chartjs-plugin-zoom on client)
      * @param {boolean} [properties.isPanable=false] - Enable pan (requires chartjs-plugin-zoom on client)
      * @param {Object} [properties.zoomOptions={}] - chartjs-plugin-zoom options override
-     * @param {number} [properties.seriesQty=1] - 1 = snapshot (replace each frame), >1 = accumulate in buffer
-     * @param {number} [properties.maxValues] - Buffer cap for accumulation mode
+     * @param {number} [properties.seriesQty=1] - 1 = snapshot (replace each frame), >1 = max number of values to buffer in accumulation mode
      * @param {number} [properties.refreshRate=1000] - Throttle ms for accumulation mode
      * @param {Object} [properties.options={}] - Chart.js options to merge with defaults
      * @param {Object} [properties.datasetOptions={}] - Chart.js dataset property overrides
@@ -78,7 +76,6 @@ class ChartJsLineView extends View {
         // Store config
         this.chartType      = properties.chartType || 'linear';
         this.seriesQty      = isDefined(properties.seriesQty) ? properties.seriesQty : 1;
-        this.maxValues      = properties.maxValues;
         this.refreshRate    = isDefined(properties.refreshRate) ? properties.refreshRate : 1000;
         this.datasetOptions = properties.datasetOptions || {};
 
@@ -310,8 +307,8 @@ class ChartJsLineView extends View {
         if (this.lastTimestamp === -1 || Date.now() - this.lastTimestamp >= this.refreshRate) {
             for (const bufferKey in this.buffer) {
                 const currentBuffer = this.buffer[bufferKey];
-                if (this.maxValues && currentBuffer.length > this.maxValues) {
-                    this.buffer[bufferKey] = currentBuffer.slice(currentBuffer.length - this.maxValues);
+                if (currentBuffer.length > this.seriesQty) {
+                    this.buffer[bufferKey] = currentBuffer.slice(currentBuffer.length - this.seriesQty);
                 }
                 this.datasets[bufferKey].data = this.buffer[bufferKey];
             }

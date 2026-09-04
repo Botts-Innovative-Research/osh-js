@@ -41,7 +41,6 @@ import {isDefined, randomUUID} from "../../utils/Utils.js";
  *     getValues:   (rec) => ({ x: rec.timestamp, y: rec.temperature }),
  *     getSeriesId: (rec) => 'temperature',
  *     lineColor: '#ff0000',
- *     maxValues: 200,
  * });
  */
 class LineLayer extends Layer {
@@ -65,7 +64,6 @@ class LineLayer extends Layer {
             fill:            false,
             stroke:          1,
             name:            '',
-            maxValues:       10,
         };
 
         // Static property overrides
@@ -73,7 +71,6 @@ class LineLayer extends Layer {
         if (isDefined(properties.backgroundColor)) props.backgroundColor = properties.backgroundColor;
         if (isDefined(properties.fill))            props.fill = properties.fill;
         if (isDefined(properties.stroke))          props.stroke = properties.stroke;
-        if (isDefined(properties.maxValues))       props.maxValues = properties.maxValues;
         if (isDefined(properties.name))            props.name = properties.name;
 
         // Register per-entity tracking via seriesId (replaces curveId / channel)
