@@ -82,6 +82,23 @@ class ChartJsLineView extends View {
         this.refreshRate    = isDefined(properties.refreshRate) ? properties.refreshRate : 1000;
         this.datasetOptions = properties.datasetOptions || {};
 
+        // Internal state
+        this.datasets = {};
+        this.buffer = {};
+        this.lastTimestamp = -1;
+        this.resetting = false;
+        this.chart = null;
+
+        // Chart creation must wait for async dependencies (time adapter, zoom plugin)
+        this.chartReady = this.initChart(properties);
+    }
+
+    async initChart(properties) {
+        // Load time adapter BEFORE creating the chart (Chart.js needs it at init)
+        if (this.chartType === 'time') {
+            await this.loadTimeAdapter();
+        }
+
         // Build default Chart.js options
         this.chartOptions = this.buildDefaultOptions(properties);
 
@@ -103,20 +120,9 @@ class ChartJsLineView extends View {
             options: this.chartOptions,
         });
 
-        // Internal state
-        this.datasets = {};
-        this.buffer = {};
-        this.lastTimestamp = -1;
-        this.resetting = false;
-
-        // Conditionally load time adapter
-        if (this.chartType === 'time') {
-            this.loadTimeAdapter();
-        }
-
-        // Conditionally load zoom plugin
+        // Conditionally load zoom plugin (can happen after chart creation)
         if (properties.isZoomable || properties.isPanable) {
-            this.loadZoomPlugin(properties);
+            await this.loadZoomPlugin(properties);
         }
     }
 
@@ -229,6 +235,7 @@ class ChartJsLineView extends View {
     }
 
     async setData(dataSourceId, data) {
+        await this.chartReady;
         if (data.type !== 'line' || this.resetting) return;
 
         const values = data.values;
@@ -342,8 +349,10 @@ class ChartJsLineView extends View {
         super.reset();
         this.datasets = {};
         this.buffer = {};
-        this.chart.data.datasets = [];
-        this.chart.update('none');
+        if (this.chart) {
+            this.chart.data.datasets = [];
+            this.chart.update('none');
+        }
         this.lastTimestamp = -1;
         this.resetting = false;
     }
