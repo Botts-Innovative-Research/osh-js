@@ -193,7 +193,7 @@ class ChartJsLineView extends View {
 
     async loadTimeAdapter() {
         try {
-            await import(/* webpackIgnore: true */ 'chartjs-adapter-moment');
+            await import('chartjs-adapter-moment');
         } catch (e) {
             console.error(
                 '[OSH-JS: ChartJsLineView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
@@ -204,7 +204,7 @@ class ChartJsLineView extends View {
 
     async loadZoomPlugin(properties) {
         try {
-            const zoomModule = await import(/* webpackIgnore: true */ 'chartjs-plugin-zoom');
+            const zoomModule = await import('chartjs-plugin-zoom');
             const zoomPlugin = zoomModule.default || zoomModule;
             Chart.register(zoomPlugin);
 

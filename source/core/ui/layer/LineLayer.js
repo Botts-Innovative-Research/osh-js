@@ -93,17 +93,19 @@ class LineLayer extends Layer {
             };
             this.addFn(this.getDataSourcesIdsByProperty('getValues'), fn);
         } else {
-            // Array style: getXAxisValues(rec) => number[] and getYAxisValues(rec) => number[]
+            // Array or scalar style: getXAxisValues/getYAxisValues — scalars are wrapped into [value]
             if (isDefined(properties.getXAxisValues)) {
                 let fn = async (rec, timestamp, options) => {
-                    this.updateProperty('xAxisValues', await this.getFunc('getXAxisValues')(rec, timestamp, options));
+                    const val = await this.getFunc('getXAxisValues')(rec, timestamp, options);
+                    this.updateProperty('xAxisValues', Array.isArray(val) ? val : [val]);
                 };
                 this.addFn(this.getDataSourcesIdsByProperty('getXAxisValues'), fn);
             }
 
             if (isDefined(properties.getYAxisValues)) {
                 let fn = async (rec, timestamp, options) => {
-                    this.updateProperty('yAxisValues', await this.getFunc('getYAxisValues')(rec, timestamp, options));
+                    const val = await this.getFunc('getYAxisValues')(rec, timestamp, options);
+                    this.updateProperty('yAxisValues', Array.isArray(val) ? val : [val]);
                 };
                 this.addFn(this.getDataSourcesIdsByProperty('getYAxisValues'), fn);
             }
