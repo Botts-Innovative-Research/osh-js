@@ -135,7 +135,7 @@ class SpectrumChartJsVisualizer {
 
     async initZoom(properties) {
         try {
-            const zoomModule = await import(/* webpackIgnore: true */ 'chartjs-plugin-zoom');
+            const zoomModule = await import('chartjs-plugin-zoom');
             const zoomPlugin = zoomModule.default || zoomModule;
             Chart.register(zoomPlugin);
 
