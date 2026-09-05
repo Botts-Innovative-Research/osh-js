@@ -122,6 +122,8 @@ class ConSysApiReplayContext extends ConSysApiContext {
                             this.relativeStartTimestamp = results[results.length-1].timestamp;
                             resolve(data);
                         }
+                    } else {
+                        resolve([])
                     }
                 }
 
