@@ -19,14 +19,15 @@ import {hex2rgb, hex2rgba, isDefined, merge, randomUUID} from "../../../utils/Ut
 import {Chart, registerables} from 'chart.js';
 
 /**
- * Unified Chart.js line view that handles both snapshot (spectrum-style) and
- * accumulation (time-series) modes. Pairs with {@link LineLayer}.
+ * Unified Chart.js view that handles both snapshot (spectrum-style) and
+ * accumulation (time-series) modes. Supports configurable chart types
+ * (line, bar, scatter, etc.). Pairs with {@link LineLayer}.
  *
  * @extends View
  * @example
  *
- * // Snapshot mode (spectrum)
- * const view = new ChartJsLineView({
+ * // Snapshot mode (spectrum line chart)
+ * const view = new ChartJsViewNew({
  *     container: 'chart-div',
  *     chartType: 'linear',
  *     xAxisLabel: 'Frequency (MHz)',
@@ -37,9 +38,10 @@ import {Chart, registerables} from 'chart.js';
  *     layers: [myLineLayer],
  * });
  *
- * // Accumulation mode (time-series, buffer up to 200 values)
- * const view = new ChartJsLineView({
+ * // Accumulation mode (time-series bar chart, buffer up to 200 values)
+ * const view = new ChartJsViewNew({
  *     container: 'chart-div',
+ *     type: 'bar',
  *     chartType: 'time',
  *     yAxisLabel: 'Temperature (C)',
  *     seriesQty: 200,
@@ -47,12 +49,13 @@ import {Chart, registerables} from 'chart.js';
  *     layers: [myLineLayer],
  * });
  */
-class ChartJsLineView extends View {
+class ChartJsViewNew extends View {
 
     /**
-     * Create a ChartJsLineView.
+     * Create a ChartJsViewNew.
      * @param {Object} properties
      * @param {string} properties.container - DOM element id (required)
+     * @param {string} [properties.type='line'] - Chart.js chart type: 'line' | 'bar' | 'scatter' | etc.
      * @param {string} [properties.chartType='linear'] - X-axis scale: 'linear' | 'time' | 'category'
      * @param {string} [properties.xAxisLabel=''] - X-axis title text
      * @param {string} [properties.yAxisLabel=''] - Y-axis title text
@@ -74,6 +77,7 @@ class ChartJsLineView extends View {
         Chart.register(...registerables);
 
         // Store config
+        this.type           = properties.type || 'line';
         this.chartType      = properties.chartType || 'linear';
         this.seriesQty      = isDefined(properties.seriesQty) ? properties.seriesQty : 1;
         this.refreshRate    = isDefined(properties.refreshRate) ? properties.refreshRate : 1000;
@@ -112,7 +116,7 @@ class ChartJsLineView extends View {
         domNode.appendChild(this.canvas);
 
         this.chart = new Chart(this.canvas, {
-            type: 'line',
+            type: this.type,
             data: {datasets: []},
             options: this.chartOptions,
         });
@@ -193,7 +197,7 @@ class ChartJsLineView extends View {
             await import('chartjs-adapter-moment');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartJsLineView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
+                '[OSH-JS: ChartJsViewNew] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
                 'Install it with: npm install chartjs-adapter-moment moment'
             );
         }
@@ -225,7 +229,7 @@ class ChartJsLineView extends View {
             this.chart.update('none');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartJsLineView] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
+                '[OSH-JS: ChartJsViewNew] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
                 'Install it with: npm install chartjs-plugin-zoom'
             );
         }
@@ -355,4 +359,4 @@ class ChartJsLineView extends View {
     }
 }
 
-export default ChartJsLineView;
+export default ChartJsViewNew;

@@ -33,7 +33,7 @@ export { default as  ImageDrapingLayer } from './ui/layer/ImageDrapingLayer.js';
 export { default as  PointMarkerLayer } from './ui/layer/PointMarkerLayer.js';
 export { default as  PolylineLayer } from './ui/layer/PolylineLayer.js';
 export { default as  ChartJsView } from './ui/view/chart/ChartJsView.js';
-export { default as  ChartJsLineView } from './ui/view/chart/ChartJsLineView.js';
+export { default as  ChartJsViewNew } from './ui/view/chart/ChartJsViewNew.js';
 export { default as  SpectrumChartJsView } from './ui/view/chart/SpectrumChartJsView.js';
 export { default as  CesiumView } from './ui/view/map/CesiumView.js';
 export { default as  MapboxView } from './ui/view/map/MapboxView.js';
