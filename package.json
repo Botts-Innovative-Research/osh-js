@@ -42,6 +42,12 @@
     "prepare-lib": "rm -fr dist; shx mkdir -p dist",
     "build-lib": "yarn prepare-lib && yarn copy-sources-lib && yarn transpile-lib && node config/prepare-lib && tar -czvf osh-js.tar.gz dist/* && mv osh-js.tar.gz ./dist"
   },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "chartjs-adapter-moment": "^1.0.1",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "chartjs-plugin-zoom": "^2.2.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
