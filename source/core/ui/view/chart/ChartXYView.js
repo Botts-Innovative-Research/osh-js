@@ -156,6 +156,7 @@ class ChartXYView extends View {
                 legend: {
                     display: this.seriesQty > 1,
                 },
+                annotation: false,
             },
             datasets: {},
             interaction: {},

@@ -78,6 +78,7 @@ class ChartRadialView extends View {
                 legend: {
                     display: true,
                 },
+                annotation: false,
             },
         };
 

@@ -77,6 +77,7 @@ class ChartRadarView extends View {
                 legend: {
                     display: true,
                 },
+                annotation: false,
             },
         };
 
