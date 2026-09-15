@@ -19,9 +19,9 @@ import {isDefined, merge, randomUUID} from "../../../utils/Utils.js";
 import {Chart, registerables} from 'chart.js';
 
 /**
- * Chart.js gauge view. Renders a half-doughnut with colored zones and a needle
- * indicator that points to the current value. Displays the numeric value and
- * unit label in the center.
+ * Chart.js gauge view. Renders a half-doughnut where the filled arc represents
+ * the current value. The arc color changes based on configurable threshold zones.
+ * Uses chartjs-plugin-annotation for the value/label text display.
  *
  * @extends View
  * @example
@@ -47,14 +47,16 @@ class ChartGaugeView extends View {
      * @param {Object} properties
      * @param {string} properties.container - DOM element id (required)
      * @param {string} [properties.label=''] - Display name shown below the value
-     * @param {string} [properties.unit=''] - Unit label shown after the value
+     * @param {string} [properties.unit=''] - Unit label shown after the value (e.g., 'mb', '%', '°C')
      * @param {number} [properties.min=0] - Minimum gauge value
      * @param {number} [properties.max=100] - Maximum gauge value
-     * @param {Object[]} [properties.zones=[]] - Color zones: [{ min, max, color }]
-     * @param {string} [properties.needleColor='#444444'] - Needle color
-     * @param {number} [properties.needleWidth=3] - Needle width in pixels
-     * @param {string} [properties.valueColor='#333333'] - Value text color
-     * @param {string} [properties.labelColor='#666666'] - Label text color
+     * @param {Object[]} [properties.zones=[]] - Color zones: [{ min, max, color }]. The arc color changes based on which zone the current value falls in.
+     * @param {string} [properties.emptyColor='rgb(234, 234, 234)'] - Color of the unfilled portion of the arc
+     * @param {string} [properties.defaultColor='rgb(140, 214, 16)'] - Arc color when no zones are defined or value is below all zones
+     * @param {number} [properties.valuePrecision=1] - Decimal places for the displayed value
+     * @param {number} [properties.valueFontSize=50] - Font size for the value text
+     * @param {number} [properties.labelFontSize=20] - Font size for the label text
+     * @param {string} [properties.labelColor='grey'] - Color of the label text
      * @param {Object} [properties.options={}] - Chart.js options to merge with defaults
      */
     constructor(properties) {
@@ -66,106 +68,53 @@ class ChartGaugeView extends View {
         Chart.register(...registerables);
 
         // Gauge config
-        this.min          = isDefined(properties.min) ? properties.min : 0;
-        this.max          = isDefined(properties.max) ? properties.max : 100;
-        this.label        = properties.label || '';
-        this.unit         = properties.unit || '';
-        this.zones        = properties.zones || [];
-        this.needleColor  = properties.needleColor || '#444444';
-        this.needleWidth  = isDefined(properties.needleWidth) ? properties.needleWidth : 3;
-        this.valueColor   = properties.valueColor || '#333333';
-        this.labelColor   = properties.labelColor || '#666666';
+        this.min            = isDefined(properties.min) ? properties.min : 0;
+        this.max            = isDefined(properties.max) ? properties.max : 100;
+        this.label          = properties.label || '';
+        this.unit           = properties.unit || '';
+        this.zones          = properties.zones || [];
+        this.emptyColor     = properties.emptyColor || 'rgb(234, 234, 234)';
+        this.defaultColor   = properties.defaultColor || 'rgb(140, 214, 16)';
+        this.valuePrecision = isDefined(properties.valuePrecision) ? properties.valuePrecision : 1;
+        this.valueFontSize  = isDefined(properties.valueFontSize) ? properties.valueFontSize : 50;
+        this.labelFontSize  = isDefined(properties.labelFontSize) ? properties.labelFontSize : 20;
+        this.labelColor     = properties.labelColor || 'grey';
+
+        // Sort zones by min for threshold lookup
+        this.sortedZones = [...this.zones].sort((a, b) => a.min - b.min);
 
         // Internal state
         this.currentValue = this.min;
         this.resetting = false;
         this.chart = null;
+        this.annotationLoaded = false;
 
         this.chartReady = this.initChart(properties);
     }
 
+    /**
+     * Determine the arc color based on the current value and zone thresholds.
+     */
+    getColorForValue(value) {
+        for (let i = this.sortedZones.length - 1; i >= 0; i--) {
+            if (value >= this.sortedZones[i].min) {
+                return this.sortedZones[i].color;
+            }
+        }
+        return this.defaultColor;
+    }
+
     async initChart(properties) {
-        // Build zone data for the doughnut segments
-        const {data, colors} = this.buildZoneData();
+        // Try to load annotation plugin
+        await this.loadAnnotationPlugin();
 
-        // Create needle plugin
         const self = this;
-        this.needlePlugin = {
-            id: 'gaugeNeedle',
-            afterDatasetDraw(chart) {
-                const {ctx, chartArea} = chart;
-                const centerX = (chartArea.left + chartArea.right) / 2;
-                const centerY = chartArea.bottom;
-                const radius = (chartArea.right - chartArea.left) / 2;
-
-                // Calculate needle angle from value
-                const range = self.max - self.min;
-                const ratio = range > 0 ? (self.currentValue - self.min) / range : 0;
-                const clampedRatio = Math.max(0, Math.min(1, ratio));
-                const angle = Math.PI + (clampedRatio * Math.PI); // PI (left) to 2PI (right)
-
-                const needleLen = radius * 0.85;
-                const needleX = centerX + needleLen * Math.cos(angle);
-                const needleY = centerY + needleLen * Math.sin(angle);
-
-                // Draw needle line
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(needleX, needleY);
-                ctx.strokeStyle = self.needleColor;
-                ctx.lineWidth = self.needleWidth;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-
-                // Draw center dot
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, self.needleWidth + 2, 0, Math.PI * 2);
-                ctx.fillStyle = self.needleColor;
-                ctx.fill();
-                ctx.restore();
-            },
-        };
-
-        // Create value/label text plugin
-        this.textPlugin = {
-            id: 'gaugeText',
-            afterDraw(chart) {
-                const {ctx, chartArea} = chart;
-                const centerX = (chartArea.left + chartArea.right) / 2;
-                const centerY = chartArea.bottom;
-
-                // Draw value
-                const valueText = self.currentValue.toFixed(1) + (self.unit ? ' ' + self.unit : '');
-                ctx.save();
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.fillStyle = self.valueColor;
-                ctx.fillText(valueText, centerX, centerY - 15);
-
-                // Draw label
-                if (self.label) {
-                    ctx.font = '14px sans-serif';
-                    ctx.fillStyle = self.labelColor;
-                    ctx.fillText(self.label, centerX, centerY - 0);
-                }
-
-                // Draw min/max labels
-                ctx.font = '11px sans-serif';
-                ctx.fillStyle = self.labelColor;
-                ctx.textAlign = 'left';
-                ctx.fillText(String(self.min), chartArea.left + 5, centerY + 15);
-                ctx.textAlign = 'right';
-                ctx.fillText(String(self.max), chartArea.right - 5, centerY + 15);
-
-                ctx.restore();
-            },
-        };
+        const range = this.max - this.min;
+        const initialFill = 0;
 
         // Chart.js options
         this.chartOptions = {
-            maintainAspectRatio: false,
+            aspectRatio: 2,
             responsive: true,
             rotation: -90,
             circumference: 180,
@@ -176,6 +125,35 @@ class ChartGaugeView extends View {
                 legend: {display: false},
             },
         };
+
+        // Add annotation config if plugin loaded
+        if (this.annotationLoaded) {
+            this.chartOptions.plugins.annotation = {
+                annotations: {
+                    gaugeLabel: {
+                        type: 'doughnutLabel',
+                        content: function({chart}) {
+                            const val = chart.data.datasets[0].data[0] + self.min;
+                            const lines = [val.toFixed(self.valuePrecision) + (self.unit ? ' ' + self.unit : '')];
+                            if (self.label) lines.push(self.label);
+                            return lines;
+                        },
+                        drawTime: 'beforeDraw',
+                        font: function() {
+                            const fonts = [{size: self.valueFontSize, weight: 'bold'}];
+                            if (self.label) fonts.push({size: self.labelFontSize});
+                            return fonts;
+                        },
+                        color: function({chart}) {
+                            const val = chart.data.datasets[0].data[0] + self.min;
+                            const colors = [self.getColorForValue(val)];
+                            if (self.label) colors.push(self.labelColor);
+                            return colors;
+                        },
+                    },
+                },
+            };
+        }
 
         // Merge user overrides
         if (isDefined(properties) && properties.hasOwnProperty('options')) {
@@ -189,44 +167,80 @@ class ChartGaugeView extends View {
         this.canvas.setAttribute('id', this.canvasId);
         domNode.appendChild(this.canvas);
 
+        // Build inline plugins array for fallback text (when annotation not available)
+        const plugins = [];
+        if (!this.annotationLoaded) {
+            plugins.push(this.buildFallbackTextPlugin());
+        }
+
         this.chart = new Chart(this.canvas, {
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: data,
-                    backgroundColor: colors,
+                    data: [initialFill, range - initialFill],
+                    backgroundColor: function(ctx) {
+                        if (ctx.type !== 'data') return;
+                        if (ctx.index === 1) return self.emptyColor;
+                        const val = ctx.chart.data.datasets[0].data[0] + self.min;
+                        return self.getColorForValue(val);
+                    },
                     borderWidth: 0,
                 }],
             },
             options: this.chartOptions,
-            plugins: [this.needlePlugin, this.textPlugin],
+            plugins: plugins,
         });
     }
 
+    async loadAnnotationPlugin() {
+        try {
+            const annotationModule = await import('chartjs-plugin-annotation');
+            const annotationPlugin = annotationModule.default || annotationModule;
+            Chart.register(annotationPlugin);
+            this.annotationLoaded = true;
+        } catch (e) {
+            console.warn(
+                '[OSH-JS: ChartGaugeView] "chartjs-plugin-annotation" could not be loaded. ' +
+                'Falling back to basic text rendering. Install it for better visuals: npm install chartjs-plugin-annotation'
+            );
+            this.annotationLoaded = false;
+        }
+    }
+
     /**
-     * Build the doughnut segment data from zone definitions.
+     * Fallback text plugin when chartjs-plugin-annotation is not available.
      */
-    buildZoneData() {
-        if (this.zones.length === 0) {
-            // No zones defined — single gray arc
-            return {
-                data: [this.max - this.min],
-                colors: ['#E0E0E0'],
-            };
-        }
+    buildFallbackTextPlugin() {
+        const self = this;
+        return {
+            id: 'gaugeFallbackText',
+            afterDraw(chart) {
+                const {ctx, chartArea} = chart;
+                const centerX = (chartArea.left + chartArea.right) / 2;
+                const centerY = chartArea.bottom;
 
-        const data = [];
-        const colors = [];
+                const val = chart.data.datasets[0].data[0] + self.min;
+                const valueText = val.toFixed(self.valuePrecision) + (self.unit ? ' ' + self.unit : '');
 
-        // Sort zones by min value
-        const sorted = [...this.zones].sort((a, b) => a.min - b.min);
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
 
-        for (const zone of sorted) {
-            data.push(zone.max - zone.min);
-            colors.push(zone.color);
-        }
+                // Value
+                ctx.font = 'bold ' + self.valueFontSize + 'px sans-serif';
+                ctx.fillStyle = self.getColorForValue(val);
+                ctx.fillText(valueText, centerX, centerY - (self.label ? 10 : 0));
 
-        return {data, colors};
+                // Label
+                if (self.label) {
+                    ctx.font = self.labelFontSize + 'px sans-serif';
+                    ctx.fillStyle = self.labelColor;
+                    ctx.fillText(self.label, centerX, centerY + self.labelFontSize);
+                }
+
+                ctx.restore();
+            },
+        };
     }
 
     async setData(dataSourceId, data) {
@@ -240,7 +254,13 @@ class ChartGaugeView extends View {
         const item = values[values.length - 1];
         this.currentValue = item.value;
 
-        // Trigger chart redraw (needle + text plugins read currentValue)
+        // Clamp to min/max range
+        const clamped = Math.max(this.min, Math.min(this.max, this.currentValue));
+        const range = this.max - this.min;
+        const fill = clamped - this.min;
+
+        // Update doughnut segments: [filled portion, empty portion]
+        this.chart.data.datasets[0].data = [fill, range - fill];
         this.chart.update('none');
     }
 
@@ -249,6 +269,8 @@ class ChartGaugeView extends View {
         super.reset();
         this.currentValue = this.min;
         if (this.chart) {
+            const range = this.max - this.min;
+            this.chart.data.datasets[0].data = [0, range];
             this.chart.update('none');
         }
         this.resetting = false;
