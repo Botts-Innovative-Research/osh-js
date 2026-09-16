@@ -26,7 +26,7 @@ import {isDefined, randomUUID} from "../../utils/Utils.js";
  *
  * @extends Layer
  */
-class ChartXYLayer extends Layer {
+class ChartCartesianLayer extends Layer {
 
     constructor(properties) {
         super(properties);
@@ -68,7 +68,7 @@ class ChartXYLayer extends Layer {
         if (isDefined(properties.getValues)) {
             // Point style: getValues(rec) => {x, y} — wraps scalars into single-element arrays
             if (isDefined(properties.getXAxisValues) || isDefined(properties.getYAxisValues)) {
-                console.warn('[ChartXYLayer] getValues and getXAxisValues/getYAxisValues both provided; getValues takes precedence.');
+                console.warn('[ChartCartesianLayer] getValues and getXAxisValues/getYAxisValues both provided; getValues takes precedence.');
             }
             let fn = async (rec, timestamp, options) => {
                 const value = await this.getFunc('getValues')(rec, timestamp, options);
@@ -142,4 +142,4 @@ class ChartXYLayer extends Layer {
     }
 }
 
-export default ChartXYLayer;
+export default ChartCartesianLayer;

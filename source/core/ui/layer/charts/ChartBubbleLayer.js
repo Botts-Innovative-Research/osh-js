@@ -14,33 +14,36 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import ChartXYLayer from "./ChartXYLayer.js";
+import ChartCartesianLayer from "./ChartCartesianLayer.js";
 
 /**
- * Layer for Chart.js line charts. Renders connected points with lines.
+ * Layer for Chart.js bubble charts. Renders points with a third dimension (radius).
+ * Use getRadius(rec) to extract the bubble size from each record.
  *
- * @extends ChartXYLayer
+ * @extends ChartCartesianLayer
  * @example
  *
- * const layer = new ChartLineLayer({
+ * const layer = new ChartBubbleLayer({
  *     dataSourceId: ds.id,
- *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.temperature }),
- *     lineColor: '#ff0000',
+ *     getXAxisValues: (rec) => rec.result.longitude,
+ *     getYAxisValues: (rec) => rec.result.latitude,
+ *     getRadius: (rec) => rec.result.magnitude,
+ *     backgroundColor: '#FF638480',
  * });
  */
-class ChartLineLayer extends ChartXYLayer {
+class ChartBubbleLayer extends ChartCartesianLayer {
 
     constructor(properties) {
         super(properties);
-        this.type = 'chartLine';
+        this.type = 'chartBubble';
     }
 
     getDefaultProps() {
         return {
             pointRadius: 0,
-            fill: false,
+            fill: true,
         };
     }
 }
 
-export default ChartLineLayer;
+export default ChartBubbleLayer;

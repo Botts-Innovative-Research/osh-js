@@ -14,12 +14,12 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import ChartXYLayer from "./ChartXYLayer.js";
+import ChartCartesianLayer from "./ChartCartesianLayer.js";
 
 /**
  * Layer for Chart.js scatter charts. Renders unconnected data points.
  *
- * @extends ChartXYLayer
+ * @extends ChartCartesianLayer
  * @example
  *
  * const layer = new ChartScatterLayer({
@@ -28,7 +28,7 @@ import ChartXYLayer from "./ChartXYLayer.js";
  *     lineColor: '#FF6384',
  * });
  */
-class ChartScatterLayer extends ChartXYLayer {
+class ChartScatterLayer extends ChartCartesianLayer {
 
     constructor(properties) {
         super(properties);

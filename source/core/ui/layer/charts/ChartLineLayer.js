@@ -14,33 +14,33 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import ChartXYLayer from "./ChartXYLayer.js";
+import ChartCartesianLayer from "./ChartCartesianLayer.js";
 
 /**
- * Layer for Chart.js bar charts. Renders vertical or horizontal bars.
+ * Layer for Chart.js line charts. Renders connected points with lines.
  *
- * @extends ChartXYLayer
+ * @extends ChartCartesianLayer
  * @example
  *
- * const layer = new ChartBarLayer({
+ * const layer = new ChartLineLayer({
  *     dataSourceId: ds.id,
- *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.rainfall }),
- *     backgroundColor: '#36A2EB80',
+ *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.temperature }),
+ *     lineColor: '#ff0000',
  * });
  */
-class ChartBarLayer extends ChartXYLayer {
+class ChartLineLayer extends ChartCartesianLayer {
 
     constructor(properties) {
         super(properties);
-        this.type = 'chartBar';
+        this.type = 'chartLine';
     }
 
     getDefaultProps() {
         return {
-            fill: true,
             pointRadius: 0,
+            fill: false,
         };
     }
 }
 
-export default ChartBarLayer;
+export default ChartLineLayer;

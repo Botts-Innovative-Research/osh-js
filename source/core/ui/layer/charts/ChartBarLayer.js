@@ -14,36 +14,33 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import ChartXYLayer from "./ChartXYLayer.js";
+import ChartCartesianLayer from "./ChartCartesianLayer.js";
 
 /**
- * Layer for Chart.js bubble charts. Renders points with a third dimension (radius).
- * Use getRadius(rec) to extract the bubble size from each record.
+ * Layer for Chart.js bar charts. Renders vertical or horizontal bars.
  *
- * @extends ChartXYLayer
+ * @extends ChartCartesianLayer
  * @example
  *
- * const layer = new ChartBubbleLayer({
+ * const layer = new ChartBarLayer({
  *     dataSourceId: ds.id,
- *     getXAxisValues: (rec) => rec.result.longitude,
- *     getYAxisValues: (rec) => rec.result.latitude,
- *     getRadius: (rec) => rec.result.magnitude,
- *     backgroundColor: '#FF638480',
+ *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.rainfall }),
+ *     backgroundColor: '#36A2EB80',
  * });
  */
-class ChartBubbleLayer extends ChartXYLayer {
+class ChartBarLayer extends ChartCartesianLayer {
 
     constructor(properties) {
         super(properties);
-        this.type = 'chartBubble';
+        this.type = 'chartBar';
     }
 
     getDefaultProps() {
         return {
-            pointRadius: 0,
             fill: true,
+            pointRadius: 0,
         };
     }
 }
 
-export default ChartBubbleLayer;
+export default ChartBarLayer;
