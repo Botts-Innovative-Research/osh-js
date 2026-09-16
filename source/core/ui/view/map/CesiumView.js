@@ -453,11 +453,11 @@ class CesiumView extends MapView {
         }
 
         // get ground altitude if non specified
-        if (!isDefined(properties.location.z) || isNaN(properties.location.z)) {
-            lonLatAlt[2] = this.getGroundAltitude(properties.location.x, properties.location.y);
-            if (lonLatAlt[2] > 1)
-                lonLatAlt[2] += 0.3;
-        }
+        // if (!isDefined(properties.location.z) || isNaN(properties.location.z)) {
+        //     lonLatAlt[2] = this.getGroundAltitude(properties.location.x, properties.location.y);
+        //     if (lonLatAlt[2] > 1)
+        //         lonLatAlt[2] += 0.3;
+        // }
 
         let rot = 0;
         if (isDefined(properties.orientation) && isDefined(properties.orientation.heading)) {
@@ -496,7 +496,7 @@ class CesiumView extends MapView {
                 // pixelOffsetScaleByDistance: new NearFarScalar(1000, 1.0, 10e6, 0.0),
                 // eyeOffset: new Cartesian3(0, 0, -1 * properties.zIndex), // make sure icon always displays in front,
                 // show: properties.visible,
-                // heightReference: properties.defaultToTerrainElevation ? HeightReference.CLAMP_TO_GROUND : HeightReference.NONE,
+                heightReference: properties.defaultToTerrainElevation ? HeightReference.CLAMP_TO_GROUND : HeightReference.NONE,
                 scale: properties.iconScale,
                 // // imageSubRegion: undefined,
                  color: color,
