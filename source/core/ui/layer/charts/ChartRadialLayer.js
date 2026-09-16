@@ -14,8 +14,8 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import Layer from "./Layer.js";
-import {isDefined, randomUUID} from "../../utils/Utils.js";
+import Layer from "../Layer.js";
+import {isDefined, randomUUID} from "../../../utils/Utils.js";
 
 /**
  * Base layer for radial chart types (pie, doughnut, polar area) and radar.

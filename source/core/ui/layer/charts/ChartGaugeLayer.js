@@ -14,8 +14,8 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import Layer from "./Layer.js";
-import {isDefined, randomUUID} from "../../utils/Utils.js";
+import Layer from "../Layer.js";
+import {isDefined, randomUUID} from "../../../utils/Utils.js";
 
 /**
  * Layer for gauge charts. Extracts a single streaming numeric value from a DataSource.
