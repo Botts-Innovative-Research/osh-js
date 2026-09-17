@@ -34,7 +34,7 @@ const LAYER_TO_CHARTJS_TYPE = {
  * @example
  *
  * // Snapshot mode (spectrum)
- * const view = new ChartXYView({
+ * const view = new ChartCartesianView({
  *     container: 'chart-div',
  *     chartType: 'linear',
  *     xAxisLabel: 'Frequency (MHz)',
@@ -45,17 +45,17 @@ const LAYER_TO_CHARTJS_TYPE = {
  * });
  *
  * // Mixed line + bar accumulation
- * const view = new ChartXYView({
+ * const view = new ChartCartesianView({
  *     container: 'chart-div',
  *     chartType: 'time',
  *     seriesQty: 200,
  *     layers: [lineLayer, barLayer],
  * });
  */
-class ChartXYView extends View {
+class ChartCartesianView extends View {
 
     /**
-     * Create a ChartXYView.
+     * Create a ChartCartesianView.
      * @param {Object} properties
      * @param {string} properties.container - DOM element id (required)
      * @param {string} [properties.chartType='linear'] - X-axis scale: 'linear' | 'time' | 'category'
@@ -201,7 +201,7 @@ class ChartXYView extends View {
             await import('chartjs-adapter-moment');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartXYView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
+                '[OSH-JS: ChartCartesianView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
                 'Install it with: npm install chartjs-adapter-moment moment'
             );
         }
@@ -233,7 +233,7 @@ class ChartXYView extends View {
             this.chart.update('none');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartXYView] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
+                '[OSH-JS: ChartCartesianView] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
                 'Install it with: npm install chartjs-plugin-zoom'
             );
         }
@@ -371,4 +371,4 @@ class ChartXYView extends View {
     }
 }
 
-export default ChartXYView;
+export default ChartCartesianView;
