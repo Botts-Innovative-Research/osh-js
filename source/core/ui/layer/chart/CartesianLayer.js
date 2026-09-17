@@ -17,20 +17,60 @@
 import Layer from "../Layer.js";
 import {isDefined, randomUUID} from "../../../utils/Utils.js";
 
+const VALID_TYPES = ['line', 'bar', 'scatter', 'bubble'];
+
 /**
- * Base layer for all XY/Cartesian chart types (line, bar, scatter, bubble).
+ * Layer for all XY/Cartesian chart types (line, bar, scatter, bubble).
  * Supports both single-value (time-series) and array-value (spectrum/snapshot) data shapes.
- * Subclasses set this.type and override default props for chart-type-specific styling.
- *
- * Not intended to be instantiated directly — use ChartLineLayer, ChartBarLayer, etc.
  *
  * @extends Layer
+ * @example
+ *
+ * const lineLayer = new CartesianLayer({
+ *     type: 'line',
+ *     dataSourceId: ds.id,
+ *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.temperature }),
+ *     lineColor: '#ff0000',
+ * });
+ *
+ * const barLayer = new CartesianLayer({
+ *     type: 'bar',
+ *     dataSourceId: ds.id,
+ *     getValues: (rec) => ({ x: rec.result.sampleTime, y: rec.result.rainfall }),
+ *     backgroundColor: '#36A2EB80',
+ * });
+ *
+ * const scatterLayer = new CartesianLayer({
+ *     type: 'scatter',
+ *     dataSourceId: ds.id,
+ *     getValues: (rec) => ({ x: rec.result.windSpeed, y: rec.result.temperature }),
+ *     lineColor: '#FF6384',
+ * });
+ *
+ * const bubbleLayer = new CartesianLayer({
+ *     type: 'bubble',
+ *     dataSourceId: ds.id,
+ *     getXAxisValues: (rec) => rec.result.longitude,
+ *     getYAxisValues: (rec) => rec.result.latitude,
+ *     getRadius: (rec) => rec.result.magnitude,
+ *     backgroundColor: '#FF638480',
+ * });
  */
-class ChartCartesianLayer extends Layer {
+class CartesianLayer extends Layer {
 
+    /**
+     * @param {Object} properties
+     * @param {string} [properties.type='line'] - Chart type: 'line' | 'bar' | 'scatter' | 'bubble'
+     */
     constructor(properties) {
         super(properties);
-        // Subclasses must set this.type (e.g., 'chartLine', 'chartBar')
+        const requestedType = properties.type || 'line';
+        if (!VALID_TYPES.includes(requestedType)) {
+            console.warn(`[CartesianLayer] Invalid type "${requestedType}". Valid types: ${VALID_TYPES.join(', ')}. Defaulting to "line".`);
+            this.type = 'line';
+        } else {
+            this.type = requestedType;
+        }
     }
 
     // called by super class constructor
@@ -40,22 +80,19 @@ class ChartCartesianLayer extends Layer {
         const props = {
             xAxisValues:     [],
             yAxisValues:     [],
-            radiusValues:    [],
+            radiusValues:    [], // specific to bubble charts
             timestamp:       0,
             seriesId:        randomUUID(),
             lineColor:       '#399ca5',
-            backgroundColor: '#399ca5',
-            fill:            false,
-            stroke:          1,
-            pointRadius:     0,
+            backgroundColor: '#399ca5', // specific to bubble, scatter, and line
+            stroke:          1, // used to describe the thickness of the line
+            pointRadius:     3, // used to describe the radius of an individual point for scatter and bubble
             name:            '',
-            ...this.getDefaultProps(),
         };
 
         // Static property overrides
         if (isDefined(properties.lineColor))       props.lineColor = properties.lineColor;
         if (isDefined(properties.backgroundColor)) props.backgroundColor = properties.backgroundColor;
-        if (isDefined(properties.fill))            props.fill = properties.fill;
         if (isDefined(properties.stroke))          props.stroke = properties.stroke;
         if (isDefined(properties.pointRadius))     props.pointRadius = properties.pointRadius;
         if (isDefined(properties.name))            props.name = properties.name;
@@ -68,7 +105,7 @@ class ChartCartesianLayer extends Layer {
         if (isDefined(properties.getValues)) {
             // Point style: getValues(rec) => {x, y} — wraps scalars into single-element arrays
             if (isDefined(properties.getXAxisValues) || isDefined(properties.getYAxisValues)) {
-                console.warn('[ChartCartesianLayer] getValues and getXAxisValues/getYAxisValues both provided; getValues takes precedence.');
+                console.warn('[CartesianLayer] getValues and getXAxisValues/getYAxisValues both provided; getValues takes precedence.');
             }
             let fn = async (rec, timestamp, options) => {
                 const value = await this.getFunc('getValues')(rec, timestamp, options);
@@ -132,14 +169,6 @@ class ChartCartesianLayer extends Layer {
             this.addFn(this.getDataSourcesIdsByProperty('getBackgroundColor'), fn);
         }
     }
-
-    /**
-     * Override in subclasses to provide chart-type-specific default props.
-     * @return {Object}
-     */
-    getDefaultProps() {
-        return {};
-    }
 }
 
-export default ChartCartesianLayer;
+export default CartesianLayer;

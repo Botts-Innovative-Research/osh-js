@@ -18,12 +18,7 @@ import View from "../View.js";
 import {hex2rgb, hex2rgba, isDefined, merge, randomUUID} from "../../../utils/Utils.js";
 import {Chart, registerables} from 'chart.js';
 
-const LAYER_TO_CHARTJS_TYPE = {
-    'chartLine':    'line',
-    'chartBar':     'bar',
-    'chartScatter': 'scatter',
-    'chartBubble':  'bubble',
-};
+const SUPPORTED_TYPES = ['line', 'bar', 'scatter', 'bubble'];
 
 /**
  * Chart.js view for XY/Cartesian charts. Supports line, bar, scatter, and bubble
@@ -34,7 +29,7 @@ const LAYER_TO_CHARTJS_TYPE = {
  * @example
  *
  * // Snapshot mode (spectrum)
- * const view = new ChartCartesianView({
+ * const view = new CartesianView({
  *     container: 'chart-div',
  *     chartType: 'linear',
  *     xAxisLabel: 'Frequency (MHz)',
@@ -45,17 +40,17 @@ const LAYER_TO_CHARTJS_TYPE = {
  * });
  *
  * // Mixed line + bar accumulation
- * const view = new ChartCartesianView({
+ * const view = new CartesianView({
  *     container: 'chart-div',
  *     chartType: 'time',
  *     seriesQty: 200,
  *     layers: [lineLayer, barLayer],
  * });
  */
-class ChartCartesianView extends View {
+class CartesianView extends View {
 
     /**
-     * Create a ChartCartesianView.
+     * Create a CartesianView.
      * @param {Object} properties
      * @param {string} properties.container - DOM element id (required)
      * @param {string} [properties.chartType='linear'] - X-axis scale: 'linear' | 'time' | 'category'
@@ -72,7 +67,7 @@ class ChartCartesianView extends View {
      */
     constructor(properties) {
         super({
-            supportedLayers: ['chartLine', 'chartBar', 'chartScatter', 'chartBubble'],
+            supportedLayers: SUPPORTED_TYPES,
             ...properties,
         });
 
@@ -201,7 +196,7 @@ class ChartCartesianView extends View {
             await import('chartjs-adapter-moment');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartCartesianView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
+                '[OSH-JS: CartesianView] chartType is "time" but "chartjs-adapter-moment" could not be loaded. ' +
                 'Install it with: npm install chartjs-adapter-moment moment'
             );
         }
@@ -233,7 +228,7 @@ class ChartCartesianView extends View {
             this.chart.update('none');
         } catch (e) {
             console.error(
-                '[OSH-JS: ChartCartesianView] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
+                '[OSH-JS: CartesianView] isZoomable/isPanable is true but "chartjs-plugin-zoom" could not be loaded. ' +
                 'Install it with: npm install chartjs-plugin-zoom'
             );
         }
@@ -241,8 +236,8 @@ class ChartCartesianView extends View {
 
     async setData(dataSourceId, data) {
         await this.chartReady;
-        const chartJsType = LAYER_TO_CHARTJS_TYPE[data.type];
-        if (!chartJsType || this.resetting) return;
+        if (!SUPPORTED_TYPES.includes(data.type) || this.resetting) return;
+        const chartJsType = data.type;
 
         const values = data.values;
         if (!values || values.length === 0) return;
@@ -371,4 +366,4 @@ class ChartCartesianView extends View {
     }
 }
 
-export default ChartCartesianView;
+export default CartesianView;
