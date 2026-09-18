@@ -86,7 +86,7 @@ class CartesianLayer extends Layer {
             lineColor:       '#399ca5',
             backgroundColor: '#399ca5', // specific to bubble, scatter, and line
             stroke:          1, // used to describe the thickness of the line
-            pointRadius:     3, // used to describe the radius of an individual point for scatter and bubble
+            pointRadius:     0, // used to describe the radius of an individual point for scatter and bubble
             name:            '',
         };
 
