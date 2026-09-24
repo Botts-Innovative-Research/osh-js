@@ -41,6 +41,7 @@ class ConSysApi extends TimeSeriesDatasource {
      * @param {String[]} [properties.observedProperty=undefined] Comma separated list of observed property URIs to get observations for.
      * @param {String[]} [properties.prefetchBatchSize=250] Number of elements to prefetch at a time
      * @param {String[]} [properties.prefetchBatchDuration=5000] Duration before prefetching the next batch. N.b the next batch will be prefetched at 80% of this duration
+     * @param {Boolean} [properties.fetchLatestOnConnect=false] - Read the latest stored observation on connect. Seed records are stamped with `LATEST_OBS_SEED_PROP`; Off by default
      */
     constructor(name, properties) {
         super(name, {
