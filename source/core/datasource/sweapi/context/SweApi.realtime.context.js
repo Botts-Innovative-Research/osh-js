@@ -112,9 +112,7 @@ class SweApiRealTimeContext extends SweApiContext {
     /**
      * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}.
      *
-     * No-op unless the datasource opted in with `fetchLatestOnConnect`. The seed reads the
-     * observation store, which can hand back data of any age, so whether a last-known value is
-     * worth showing is the consumer's call.
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`.
      */
     scheduleFetchLatestObservations() {
         if (!this.properties.fetchLatestOnConnect) {

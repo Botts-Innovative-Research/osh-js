@@ -104,6 +104,7 @@ class PointMarkerLayer extends Layer {
      * @param {Function} [properties.getMarkerId] - map an id to a unique marker
      * @param {Number} [properties.zoomLevel=15] - Set the default zoom level
      * @param {Boolean} [properties.defaultToTerrainElevation=false] - Set the default to terrain elevation
+     * @param {Boolean} [properties.fetchLatestOnConnect=true] - Opt-in: Use a GET request to seed the layer with the latest observation on connect
      *
      */
     constructor(properties) {

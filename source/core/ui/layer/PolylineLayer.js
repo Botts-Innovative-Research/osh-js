@@ -16,7 +16,6 @@
 
 import Layer from './Layer.js';
 import { isDefined } from '../../utils/Utils.js';
-import { LATEST_OBS_SEED_PROP } from '../../Constants.js';
 
 /**
  * @extends Layer
@@ -60,8 +59,6 @@ class PolylineLayer extends Layer {
 	 * @param {Function} [properties.getSmoothFactor] - defines a function to return the smoothFactor
 	 * @param {Function} [properties.getPolylineId] - map an id to a unique polyline
 	 * 	@param {Function} [properties.getLocations] - defines a function to return the locations array
-	 * @param {Boolean} [properties.ignoreLatestObsSeed=true] - when true, records stamped with
-	 *   `LATEST_OBS_SEED_PROP` do not fetch location PMs on connect
 	 */
 	constructor(properties) {
 		super(properties);
@@ -105,17 +102,10 @@ class PolylineLayer extends Layer {
 			props.clampToGround = properties.clampToGround;
 		}
 
-		this.ignoreLatestObsSeed = isDefined(properties.ignoreLatestObsSeed)
-			? properties.ignoreLatestObsSeed
-			: true;
-
 		this.definedId('polylineId', props);
 
 		if (isDefined(properties.getLocation)) {
 			let fn = async (rec, timestamp, options) => {
-				if (this.ignoreLatestObsSeed && rec && rec[LATEST_OBS_SEED_PROP] === true) {
-					return;
-				}
 				let loc = await this.getFunc('getLocation')(rec, timestamp, options);
 				const currentProps = this.getCurrentProps();
 				if (!currentProps.locations) {
