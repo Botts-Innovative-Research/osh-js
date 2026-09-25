@@ -19,6 +19,7 @@ import Control from "../../../sweapi/control/Control";
 import DataStream from "../../../sweapi/datastream/DataStream";
 import {Status} from "../../../connector/Status.js";
 import {isDefined} from "../../../utils/Utils";
+import {LATEST_OBS_SEED_PROP} from "../../../Constants.js";
 
 /**
  * Backoff schedule (in milliseconds) used by {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
@@ -109,9 +110,14 @@ class SweApiRealTimeContext extends SweApiContext {
     }
 
     /**
-     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
+     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}.
+     *
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`.
      */
     scheduleFetchLatestObservations() {
+        if (!this.properties.fetchLatestOnConnect) {
+            return;
+        }
         if (this._fetchLatestDebounce) {
             clearTimeout(this._fetchLatestDebounce);
         }
@@ -146,6 +152,7 @@ class SweApiRealTimeContext extends SweApiContext {
                 if (data && data.length) {
                     data.forEach(d => {
                         d.version = this.properties.version;
+                        d[LATEST_OBS_SEED_PROP] = true;
                     });
                     this.handleData(data, responseFormat);
                     return;

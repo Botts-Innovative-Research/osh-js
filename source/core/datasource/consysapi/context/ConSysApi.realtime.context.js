@@ -19,6 +19,7 @@ import DataStream from "../../../consysapi/datastream/DataStream";
 import {Status} from "../../../connector/Status.js";
 import {isDefined} from "../../../utils/Utils";
 import ControlStream from "../../../consysapi/controlstream/ControlStream";
+import {LATEST_OBS_SEED_PROP} from "../../../Constants.js";
 
 
 /**
@@ -95,9 +96,16 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * 150ms debounce on fetchLatestObservationsWithRetry
+     * 150ms debounce on fetchLatestObservationsWithRetry.
+     *
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`. The seed reads the
+     * observation store, which can hand back data of any age, so whether a last-known value is
+     * worth showing is the consumer's call.
      */
     scheduleFetchLatestObservations() {
+        if (!this.properties.fetchLatestOnConnect) {
+            return;
+        }
         if (this._fetchLatestDebounce) {
             clearTimeout(this._fetchLatestDebounce);
         }
@@ -132,6 +140,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
                 if (data && data.length) {
                     data.forEach(d => {
                         d.version = this.properties.version;
+                        d[LATEST_OBS_SEED_PROP] = true;
                     });
                     this.handleData(data, responseFormat);
                     return;

@@ -24,6 +24,7 @@ import {
     randomUUID,
     capitalizeFirstLetter
 } from "../../utils/Utils.js";
+import {LATEST_OBS_SEED_PROP} from "../../Constants.js";
 
 /**
  * This class is in charge of defining a Layer object.
@@ -41,6 +42,7 @@ class Layer {
      * @param {Function} properties.onLeftClick - trigger onLeftClick marker event
      * @param {Function} properties.onRightClick - trigger onRightClick marker event
      * @param {Function} properties.onHover - trigger onHover marker event
+     * @param {boolean} [properties.fetchLatestOnConnect=false] - get latest stored observation on connect; off by default
      */
     constructor(properties) {
         this.properties = properties;
@@ -64,6 +66,9 @@ class Layer {
             timestamp: true
         }
         this.dataSourceIds = undefined;
+        this.fetchLatestOnConnect = isDefined(properties.fetchLatestOnConnect)
+            ? properties.fetchLatestOnConnect
+            : false;
 
         if(isDefined(properties.name)) {
             this.props.name = properties.name;
@@ -251,6 +256,9 @@ class Layer {
         // store data into data props
         this.data = [];
         options.dataSourceId = dataSourceId;
+        if (!this.fetchLatestOnConnect) {
+            records = records.filter(record => !(record && record.data && record.data[LATEST_OBS_SEED_PROP] === true));
+        }
         if (isDefined(this.dataSourcesToFn)) {
             if (dataSourceId in this.dataSourcesToFn) {
                 let fnArr = this.dataSourcesToFn[dataSourceId];
