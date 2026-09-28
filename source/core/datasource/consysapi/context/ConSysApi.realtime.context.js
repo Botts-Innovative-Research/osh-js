@@ -19,7 +19,6 @@ import DataStream from "../../../consysapi/datastream/DataStream";
 import {Status} from "../../../connector/Status.js";
 import {isDefined} from "../../../utils/Utils";
 import ControlStream from "../../../consysapi/controlstream/ControlStream";
-import {LATEST_OBS_SEED_PROP} from "../../../Constants.js";
 
 
 /**
@@ -140,7 +139,6 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
                 if (data && data.length) {
                     data.forEach(d => {
                         d.version = this.properties.version;
-                        d[LATEST_OBS_SEED_PROP] = true;
                     });
                     this.handleData(data, responseFormat);
                     return;
