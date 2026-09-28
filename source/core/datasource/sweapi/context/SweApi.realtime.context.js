@@ -109,9 +109,14 @@ class SweApiRealTimeContext extends SweApiContext {
     }
 
     /**
-     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
+     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}.
+     *
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`.
      */
     scheduleFetchLatestObservations() {
+        if (!this.properties.fetchLatestOnConnect) {
+            return;
+        }
         if (this._fetchLatestDebounce) {
             clearTimeout(this._fetchLatestDebounce);
         }
