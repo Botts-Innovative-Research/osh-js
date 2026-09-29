@@ -127,13 +127,40 @@ class SweApiRealTimeContext extends SweApiContext {
     }
 
     /**
-     * Fetches the most recent observation from the SWE API DataStream with a retry/backoff loop.
+     * Determines whether a seed record is recent enough to be delivered.
+     *
+     * Always true when `fetchLatestMaxAgeMs` is not set, which is the default.
+     * There is no way to differentiate between stale data & an old timestamp
+     * (a manually set location) that is still accurate for a running driver.
+     *
+     * @param {Object} record - a parsed observation, carrying `timestamp` in epoch millis.
+     * @returns {boolean} true if the record may be delivered.
+     */
+    isWithinLatestObsMaxAge(record) {
+        const maxAgeMs = this.properties.fetchLatestMaxAgeMs;
+        if (!isDefined(maxAgeMs)) {
+            return true;
+        }
+        const timestamp = record && record.timestamp;
+        if (!isDefined(timestamp) || Number.isNaN(timestamp)) {
+            return false;
+        }
+        return (Date.now() - timestamp) <= maxAgeMs;
+    }
+
+    /**
+     * Fetches the most recent observation from the SweApi DataStream ('phenomenonTime=now')
+     * with a retry/backoff loop and delivers what survives {@link isWithinLatestObsMaxAge} to
+     * {@link handleData}.
      *
      * No-op if the underlying `streamObject` is not a DataStream (i.e. has no
-     * `searchObservations`)
+     * `searchObservations`).
      *
-     * @returns {Promise<void>} Resolves when either the latest observation has been delivered
-     *                          to {@link handleData} or all retry attempts have been exhausted.
+     * The retries exist to cover a store that has not been written to yet, e.g. a driver that has
+     * just started and has not emitted its first observation.
+     *
+     * @returns {Promise<void>} Resolves when the seed has been delivered, rejected as stale, or
+     *                          all retry attempts have been exhausted.
      */
     async fetchLatestObservationsWithRetry() {
         if (!this.streamObject || !this.streamObject.searchObservations) {
@@ -149,10 +176,13 @@ class SweApiRealTimeContext extends SweApiContext {
                 const collection = await this.streamObject.searchObservations(filter);
                 const data = await collection.nextPage();
                 if (data && data.length) {
-                    data.forEach(d => {
-                        d.version = this.properties.version;
-                    });
-                    this.handleData(data, responseFormat);
+                    const fresh = data.filter(record => this.isWithinLatestObsMaxAge(record));
+                    if (fresh.length) {
+                        fresh.forEach(d => {
+                            d.version = this.properties.version;
+                        });
+                        this.handleData(fresh, responseFormat);
+                    }
                     return;
                 }
             } catch (err) {
