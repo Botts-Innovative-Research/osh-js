@@ -30,6 +30,22 @@ import ControlStream from "../../../consysapi/controlstream/ControlStream";
 const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
 
 /**
+ * `datastream -> system` lookups keyed by `<baseUrl>|<datastreamId>`. Holds the in-flight promise
+ * so datasources connecting together share one request.
+ * @type {Map<string, Promise<?string>>}
+ */
+const systemIdByDatastream = new Map();
+
+/**
+ * Newest observation time per system, keyed by `<baseUrl>|<systemId>`.
+ * @type {Map<string, Promise<?number>>}
+ */
+const systemActivityBySystem = new Map();
+
+/** Page size when listing a system's datastreams. */
+const SYSTEM_DATASTREAMS_PAGE_SIZE = 100;
+
+/**
  * Promisified `setTimeout` used to await between retry attempts without blocking the event loop.
  *
  * @param {number} ms - Number of milliseconds to wait before the returned promise resolves.
@@ -115,6 +131,91 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
+     * Resolves the id of the system this datastream belongs to, from `system@id` on the
+     * datastream resource (`GET /datastreams/{id}`). Memoized per endpoint and datastream.
+     *
+     * @returns {Promise<?string>} the system id, or null if it could not be resolved.
+     */
+    async resolveSystemId() {
+        const stream = this.streamObject;
+        const datastreamId = stream && stream.properties && stream.properties.id;
+        if (!datastreamId || !stream.fetchAsJson) {
+            return null;
+        }
+        const key = `${stream.baseUrl()}|${datastreamId}`;
+        if (!systemIdByDatastream.has(key)) {
+            const pending = (async () => {
+                const json = await stream.fetchAsJson(
+                    `/datastreams/${datastreamId}`,
+                    'f=application/json'
+                );
+                return (json && json['system@id']) || null;
+            })().catch(() => null);
+            systemIdByDatastream.set(key, pending);
+        }
+        return systemIdByDatastream.get(key);
+    }
+
+    /**
+     * Newest `phenomenonTime` end across all of the system's datastreams (`'now'` counts as the
+     * current instant). Asked of the whole system so a one-shot location stream does not make a
+     * live system look silent. Memoized per endpoint and system.
+     *
+     * @param {String} systemId - the system to look up.
+     * @returns {Promise<?number>} epoch millis of the newest observation, or null if unknown.
+     */
+    async resolveSystemLastActivity(systemId) {
+        const stream = this.streamObject;
+        if (!systemId || !stream || !stream.fetchAsJson) {
+            return null;
+        }
+        const key = `${stream.baseUrl()}|${systemId}`;
+        if (!systemActivityBySystem.has(key)) {
+            const pending = (async () => {
+                const json = await stream.fetchAsJson(
+                    `/systems/${systemId}/datastreams`,
+                    `f=application/json&limit=${SYSTEM_DATASTREAMS_PAGE_SIZE}`
+                );
+                const datastreams = (json && json.items) || [];
+                let newest = null;
+                for (const datastream of datastreams) {
+                    const phenomenonTime = datastream && datastream.phenomenonTime;
+                    const end = Array.isArray(phenomenonTime) ? phenomenonTime[1] : undefined;
+                    if (!isDefined(end)) {
+                        continue;
+                    }
+                    const at = end === 'now' ? Date.now() : Date.parse(end);
+                    if (Number.isFinite(at) && (newest === null || at > newest)) {
+                        newest = at;
+                    }
+                }
+                return newest;
+            })().catch(() => null);
+            systemActivityBySystem.set(key, pending);
+        }
+        return systemActivityBySystem.get(key);
+    }
+
+    /**
+     * Whether the system was heard from within `fetchLatestMaxSilenceMs`. Gates both the seed and
+     * the declared-position fallback. Unset horizon or unknown activity passes.
+     *
+     * @param {String} systemId - the system to judge.
+     * @returns {Promise<boolean>} true if stored or declared state may be shown.
+     */
+    async isWithinSystemSilence(systemId) {
+        const maxSilenceMs = this.properties.fetchLatestMaxSilenceMs;
+        if (!isDefined(maxSilenceMs)) {
+            return true;
+        }
+        const lastActivity = await this.resolveSystemLastActivity(systemId);
+        if (lastActivity === null) {
+            return true;
+        }
+        return (Date.now() - lastActivity) <= maxSilenceMs;
+    }
+
+    /**
      * Determines whether a seed record is recent enough to be delivered.
      *
      * Always true when `fetchLatestMaxAgeMs` is not set, which is the default.
@@ -137,22 +238,22 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * Fetches the most recent observation from the ConSys DataStream ('phenomenonTime=now')
-     * with a retry/backoff loop and delivers what survives {@link isWithinLatestObsMaxAge} to
-     * {@link handleData}.
+     * Fetches the latest observation (`phenomenonTime=now`) with retries and delivers what passes
+     * {@link isWithinLatestObsMaxAge}. Skipped without a query when the parent system fails
+     * {@link isWithinSystemSilence}. Retries cover a store not written to yet; a stale answer
+     * stops them, since re-reading the same rows cannot help.
      *
-     * No-op if the underlying `streamObject` is not a DataStream (i.e. has no
-     * `searchObservations`).
-     *
-     * The retries exist to cover a store that has not been written to yet, e.g. a driver that has
-     * just started and has not emitted its first observation.
-     *
-     * @returns {Promise<void>} Resolves when the seed has been delivered, rejected as stale, or
-     *                          all retry attempts have been exhausted.
+     * @returns {Promise<void>} Resolves once delivered, skipped, rejected as stale, or retries exhausted.
      */
     async fetchLatestObservationsWithRetry() {
         if (!this.streamObject || !this.streamObject.searchObservations) {
             return;
+        }
+        if (isDefined(this.properties.fetchLatestMaxSilenceMs)) {
+            const systemId = await this.resolveSystemId();
+            if (!await this.isWithinSystemSilence(systemId)) {
+                return;
+            }
         }
         const responseFormat = this.properties.responseFormat;
         let lastErr;
@@ -182,7 +283,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
         }
     }
     onStreamMessage(messages, format) {
-         // in case of om+json ,we have to add the timestamp which is not included for each record but at the root level
+         // in case of om+json, we have to add the timestamp which is not included for each record but at the root level
         let results = messages;
         let version = this.properties.version;
         for(let message of messages) {

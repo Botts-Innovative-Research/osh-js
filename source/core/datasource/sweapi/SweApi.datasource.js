@@ -43,6 +43,7 @@ class SweApi extends TimeSeriesDatasource {
      * @param {String[]} [properties.prefetchBatchDuration=5000] Duration before prefetching the next batch. N.b the next batch will be prefetched at 80% of this duration
      * @param {Boolean} [properties.fetchLatestOnConnect=false] - Get the latest stored observation on connect; off by default
      * @param {Number} [properties.fetchLatestMaxAgeMs=undefined] - Reject seeded observations older than this many milliseconds. Unset means no bound
+     * @param {Number} [properties.fetchLatestMaxSilenceMs=undefined] - Skip the seed (and the declared-position fallback) if none of the system's datastreams has produced an observation within this many milliseconds. Unset means no horizon
      */
     constructor(name, properties) {
         super(name, {
