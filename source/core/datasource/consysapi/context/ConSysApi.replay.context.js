@@ -123,7 +123,7 @@ class ConSysApiReplayContext extends ConSysApiContext {
                             resolve(data);
                         }
                     } else {
-                        resolve([])
+                        resolve([]);
                     }
                 }
 

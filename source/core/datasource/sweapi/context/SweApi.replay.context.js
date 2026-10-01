@@ -123,7 +123,7 @@ class SweApiReplayContext extends SweApiContext {
                             resolve(data);
                         }
                     } else {
-                        resolve([])
+                        resolve([]);
                     }
                 }
 
