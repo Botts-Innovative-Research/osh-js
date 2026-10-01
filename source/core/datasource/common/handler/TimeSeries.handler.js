@@ -150,12 +150,12 @@ class DelegateReplayHandler extends DelegateHandler {
         try {
             let data = await this.context.nextBatch();
             this.context.onChangeStatus(Status.FETCH_STARTED);
-            if (this.status.cancel) {
+            if (this.status.cancel || data.length === 0) {
                 return;
-            } else if (data.length > 0) {
-                this.handleData(data);
-                lastTimestamp = data[data.length-1].timestamp;
-            }
+            } 
+                
+            this.handleData(data);
+            lastTimestamp = data[data.length-1].timestamp;
 
             if(lastTimestamp < endTimestamp) {
                 let masterTimestamp;
