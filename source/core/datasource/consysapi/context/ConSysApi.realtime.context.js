@@ -21,36 +21,13 @@ import {isDefined} from "../../../utils/Utils";
 import ControlStream from "../../../consysapi/controlstream/ControlStream";
 
 
-/**
- * Backoff schedule (in milliseconds) used by {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}
- * when attempting to retrieve the most recent observation after a (re)connection.
- *
- * @type {number[]}
- */
 const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
-
-/**
- * `datastream -> system` lookups keyed by `<baseUrl>|<datastreamId>`. Holds the in-flight promise
- * so datasources connecting together share one request.
- * @type {Map<string, Promise<?string>>}
- */
-const systemIdByDatastream = new Map();
-
-/**
- * Newest observation time per system, keyed by `<baseUrl>|<systemId>`.
- * @type {Map<string, Promise<?number>>}
- */
-const systemActivityBySystem = new Map();
-
-/** Page size when listing a system's datastreams. */
 const SYSTEM_DATASTREAMS_PAGE_SIZE = 100;
 
-/**
- * Promisified `setTimeout` used to await between retry attempts without blocking the event loop.
- *
- * @param {number} ms - Number of milliseconds to wait before the returned promise resolves.
- * @returns {Promise<void>} A promise that resolves once `ms` milliseconds have elapsed.
- */
+const systemIdByDatastream = new Map();
+const systemActivityBySystem = new Map();
+
+
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -111,11 +88,9 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * 150ms debounce on fetchLatestObservationsWithRetry.
+     * 150ms debounce on {@link SweApiRealTimeContext#fetchLatestObservationsWithRetry}.
      *
-     * No-op unless the datasource opted in with `fetchLatestOnConnect`. The seed reads the
-     * observation store, which can hand back data of any age, so whether a last-known value is
-     * worth showing is the consumer's call.
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`.
      */
     scheduleFetchLatestObservations() {
         if (!this.properties.fetchLatestOnConnect) {
@@ -131,8 +106,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * Resolves the id of the system this datastream belongs to, from `system@id` on the
-     * datastream resource (`GET /datastreams/{id}`). Memoized per endpoint and datastream.
+     * Resolves the id of the system this datastream belongs to, from `system@id`. Memoized per endpoint & datastream.
      *
      * @returns {Promise<?string>} the system id, or null if it could not be resolved.
      */
@@ -157,9 +131,9 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * Newest `phenomenonTime` end across all of the system's datastreams (`'now'` counts as the
-     * current instant). Asked of the whole system so a one-shot location stream does not make a
-     * live system look silent. Memoized per endpoint and system.
+     * Newest `phenomenonTime` end across all of the system's datastreams.
+     * A one-shot location stream does not make a live system look silent.
+     * Memoized per endpoint and system.
      *
      * @param {String} systemId - the system to look up.
      * @returns {Promise<?number>} epoch millis of the newest observation, or null if unknown.
@@ -219,8 +193,6 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
      * Determines whether a seed record is recent enough to be delivered.
      *
      * Always true when `fetchLatestMaxAgeMs` is not set, which is the default.
-     * There is no way to differentiate between stale data & an old timestamp
-     * (a manually set location) that is still accurate for a running driver.
      *
      * @param {Object} record - a parsed observation, carrying `timestamp` in epoch millis.
      * @returns {boolean} true if the record may be delivered.
@@ -240,8 +212,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     /**
      * Fetches the latest observation (`phenomenonTime=now`) with retries and delivers what passes
      * {@link isWithinLatestObsMaxAge}. Skipped without a query when the parent system fails
-     * {@link isWithinSystemSilence}. Retries cover a store not written to yet; a stale answer
-     * stops them, since re-reading the same rows cannot help.
+     * {@link isWithinSystemSilence}.
      *
      * @returns {Promise<void>} Resolves once delivered, skipped, rejected as stale, or retries exhausted.
      */
