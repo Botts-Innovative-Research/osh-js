@@ -95,9 +95,16 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
     }
 
     /**
-     * 150ms debounce on fetchLatestObservationsWithRetry
+     * 150ms debounce on fetchLatestObservationsWithRetry.
+     *
+     * No-op unless the datasource opted in with `fetchLatestOnConnect`. The seed reads the
+     * observation store, which can hand back data of any age, so whether a last-known value is
+     * worth showing is the consumer's call.
      */
     scheduleFetchLatestObservations() {
+        if (!this.properties.fetchLatestOnConnect) {
+            return;
+        }
         if (this._fetchLatestDebounce) {
             clearTimeout(this._fetchLatestDebounce);
         }
