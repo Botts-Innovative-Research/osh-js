@@ -166,6 +166,7 @@ class ConSysApiRealTimeContext extends ConSysApiContext {
                 return newest;
             })().catch(() => null);
             systemActivityBySystem.set(key, pending);
+            pending.finally(() => systemActivityBySystem.delete(key));
         }
         return systemActivityBySystem.get(key);
     }

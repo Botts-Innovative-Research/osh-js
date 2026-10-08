@@ -24,7 +24,6 @@ import {isDefined} from "../../../utils/Utils";
 const FETCH_LATEST_RETRY_DELAYS_MS = [100, 400, 1200, 3000];
 const SYSTEM_DATASTREAMS_PAGE_SIZE = 100;
 
-
 const systemIdByDatastream = new Map();
 const systemActivityBySystem = new Map();
 
@@ -170,6 +169,7 @@ class SweApiRealTimeContext extends SweApiContext {
                 return newest;
             })().catch(() => null);
             systemActivityBySystem.set(key, pending);
+            pending.finally(() => systemActivityBySystem.delete(key));
         }
         return systemActivityBySystem.get(key);
     }
