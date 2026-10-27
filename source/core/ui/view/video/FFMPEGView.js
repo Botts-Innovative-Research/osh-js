@@ -23,20 +23,20 @@ import {FrameType} from "./FrameType";
  import FFMPEGView from 'core/ui/view/video/FFMPEGView.js';
 
  let videoView = new FFMPEGView({
-  container: 'video-h264-container',
-  css: 'video-h264',
-  name: 'UAV Video',
-  framerate:25,
-  showTime: true,
-  showStats: true,
-    layers: [
-      new VideoDataLayer({
-        dataSourceId: videoDataSource.id,
-        getFrameData: (rec) => rec.videoFrame,
-        getTimestamp: (rec) => rec.timestamp
-      })
-  ]
-});
+ container: 'video-h264-container',
+ css: 'video-h264',
+ name: 'UAV Video',
+ framerate:25,
+ showTime: true,
+ showStats: true,
+ layers: [
+ new VideoDataLayer({
+ dataSourceId: videoDataSource.id,
+ getFrameData: (rec) => rec.videoFrame,
+ getTimestamp: (rec) => rec.timestamp
+ })
+ ]
+ });
  */
 
 class FFMPEGView extends CanvasView {
