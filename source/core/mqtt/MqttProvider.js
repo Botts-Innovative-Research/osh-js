@@ -166,11 +166,20 @@ class MqttProvider {
             });
             this.client.on('message', this.onMessage.bind(this));
 
-            this.client.on('offline', e => {
-                throw new Error(`The server ${that.endpoint} seems offline`);
+            this.client.on('reconnect', () => {
+                console.warn(`Mqtt client is attempting to reconnect to ${that.endpoint}`);
             });
+
+            this.client.on('close', () => {
+                console.warn(`Mqtt client connection closed for ${that.endpoint}`);
+            });
+
+            this.client.on('offline', e => {
+                console.error(`Mqtt client offline: the server ${that.endpoint} seems offline. Will attempt to reconnect.`);
+            });
+
             this.client.on('error', e => {
-                throw new Error(error);
+                console.error(`Mqtt client error for ${that.endpoint}:`, e);
             });
         }
     }
