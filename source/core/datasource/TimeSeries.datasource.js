@@ -157,28 +157,28 @@ class TimeSeriesDatasource {
     }
 
     /**
-     * Sets the start time
+     * Sets the start boundary as an epoch timestamp in milliseconds.
      */
     setStartTimestamp(timestamp) {
         this.timeSeriesDataSource.setStartTimestamp(timestamp);
     }
 
     /**
-     * Sets the end time
+     * Sets the end boundary as an epoch timestamp in milliseconds.
      */
     setEndTimestamp(timestamp) {
         this.timeSeriesDataSource.setEndTimestamp(timestamp);
     }
 
     /**
-     * Sets the start time
+     * Sets the start boundary from a date-like value (for example, an ISO string or Date).
      */
     setStartTime(time) {
         this.timeSeriesDataSource.setStartTime(time);
     }
 
     /**
-     * Sets the end time
+     * Sets the end boundary from a date-like value (for example, an ISO string or Date).
      */
     setEndTime(time) {
         this.timeSeriesDataSource.setEndTime(time);

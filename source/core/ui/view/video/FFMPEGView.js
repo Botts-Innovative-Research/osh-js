@@ -10,6 +10,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {assertDefined, isDefined, isWebWorker, randomUUID} from "../../../utils/Utils.js";
+import DecodeWorker from './workers/ffmpeg.decode.video.worker.js';
 import '../../../resources/css/ffmpegview.css';
 import YUVCanvas from "./YUVCanvas";
 import CanvasView from "./CanvasView";
@@ -23,20 +24,20 @@ import {FrameType} from "./FrameType";
  import FFMPEGView from 'core/ui/view/video/FFMPEGView.js';
 
  let videoView = new FFMPEGView({
-  container: 'video-h264-container',
-  css: 'video-h264',
-  name: 'UAV Video',
-  framerate:25,
-  showTime: true,
-  showStats: true,
-    layers: [
-      new VideoDataLayer({
-        dataSourceId: videoDataSource.id,
-        getFrameData: (rec) => rec.videoFrame,
-        getTimestamp: (rec) => rec.timestamp
-      })
-  ]
-});
+ container: 'video-h264-container',
+ css: 'video-h264',
+ name: 'UAV Video',
+ framerate:25,
+ showTime: true,
+ showStats: true,
+ layers: [
+ new VideoDataLayer({
+ dataSourceId: videoDataSource.id,
+ getFrameData: (rec) => rec.videoFrame,
+ getTimestamp: (rec) => rec.timestamp
+ })
+ ]
+ });
  */
 
 class FFMPEGView extends CanvasView {
@@ -105,7 +106,10 @@ class FFMPEGView extends CanvasView {
      */
     reset() {
         this.skipFrame = true;
-
+        // if(isDefined(this.decodeWorker)) {
+        //     this.decodeWorker.terminate();
+        //     this.decodeWorker = null;
+        // }
         if(this.decodeWorker) {
             this.decodeWorker.postMessage({
                 message: 'release'
@@ -125,7 +129,15 @@ class FFMPEGView extends CanvasView {
             vRowCnt: 1
         });
         this.skipFrame = false;
+        // the decoder has been released, a new keyframe is needed to restart decoding
+        this.onKeyFrameRequired();
     }
+
+    /**
+     * Called when the decoder needs a new keyframe before decoding again (reset, decoding error...).
+     * VideoView overrides it to go back to "skip until keyframe" mode.
+     */
+    onKeyFrameRequired() {}
 
 //-- FFMPEG DECODING PART
 
@@ -139,19 +151,28 @@ class FFMPEGView extends CanvasView {
      * @private
      */
     initFFMPEG_DECODER_WORKER(codec) {
-
-        if (isDefined(codec)) {
-            this.codec = codec.toLowerCase();
-        }
-
-        this.decodeWorker = new Worker(new URL('./workers/ffmpeg.decode.video.worker.js', import.meta.url), { type: 'module' });
+        this.decodeWorker = new DecodeWorker();
+        // const drawWorker = new DrawWorker();
         this.decodeWorker.id = randomUUID();
 
         this.decodeWorker.postMessage({
             'message': 'init',
             'codec' : codec.toLowerCase()
         });
+        // const offscreenCanvas = this.canvas.transferControlToOffscreen();
+        // let canvas = document.createElement('canvas');
+        // canvas.setAttribute('width', this.width);
+        // canvas.setAttribute('height', this.height);
+        // this.domNode.appendChild(canvas);
 
+        // const offscreenCanvas = canvas.transferControlToOffscreen();
+        // drawWorker.postMessage({
+        //     canvas: offscreenCanvas,
+        //     width: this.width,
+        //     height: this.height,
+        //     framerate: this.framerate,
+        //     dataSourceId: this.dataSourceId
+        // }, [offscreenCanvas]);
         this.decodeWorker.onerror = (e) => {
             console.error('Decode worker error:', e);
         };
@@ -166,7 +187,7 @@ class FFMPEGView extends CanvasView {
             this.onAfterDecoded(decodedFrame, FrameType.ARRAY);
             this.updateStatistics(decodedFrame.pktSize);
             if(this.showTime) {
-                this.textFpsDiv.innerText = new Date(decodedFrame.timestamp).toISOString()+' ';
+                this.textFpsDiv.textContent = new Date(decodedFrame.timestamp).toISOString()+' ';
             }
             if(this.showStats) {
                 this.textStatsDiv.innerText  = this.statistics.averageFps.toFixed(2) + ' fps, ' +
@@ -210,15 +231,14 @@ class FFMPEGView extends CanvasView {
      */
     async decode(pktSize, pktData, timestamp, roll) {
         if(pktSize > 0) {
-            const clone = new Uint8Array(pktData);
-            let arrayBuffer = clone.buffer;
+            let arrayBuffer = pktData.buffer;
 
             this.decodeWorker.postMessage({
                 message: 'data',
                 pktSize: pktSize,
                 pktData: arrayBuffer,
                 roll: roll,
-                byteOffset: 0,
+                byteOffset: pktData.byteOffset,
                 codec: this.codec,
                 timestamp: timestamp,
                 dataSourceId: this.dataSourceId

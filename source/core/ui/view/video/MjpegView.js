@@ -24,19 +24,19 @@ import {isDefined} from "../../../utils/Utils.js";
  import MjpegView from 'core/ui/view/video/MjpegView.js';
 
  let videoView = new MjpegView({
-  container: 'container',
-  css: 'video-h264',
-  name: 'UAV Video',
-  showTime: true,
-  showStats: true,
-  layers: [
-      new DataLayer({
-        dataSourceId: videoDataSource.id,
-         getFrameData: (rec) => rec.videoFrame,
-         getTimestamp: (rec) => rec.timestamp
-      })
-  ]
-});
+ container: 'container',
+ css: 'video-h264',
+ name: 'UAV Video',
+ showTime: true,
+ showStats: true,
+ layers: [
+ new DataLayer({
+ dataSourceId: videoDataSource.id,
+ getFrameData: (rec) => rec.videoFrame,
+ getTimestamp: (rec) => rec.timestamp
+ })
+ ]
+ });
  */
 
 class MjpegView extends View {
@@ -55,34 +55,32 @@ class MjpegView extends View {
             ...properties
         });
 
-        this.currentDoc = isDefined(properties.parentDoc) ? properties.parentDoc : document;
-
         // create timestamp slot
         this.timestamp = null;
         if (isDefined(properties.showTime) && properties.showTime) {
             this.timestamp = document.createElement("div");
             this.timestamp.setAttribute("class", "video-time");
-            this.currentDoc.getElementById(this.divId).appendChild(this.timestamp);
+            document.getElementById(this.divId).appendChild(this.timestamp);
         }
 
         // creates video tag element
-        this.imgTag = this.currentDoc.createElement("img");
+        this.imgTag = document.createElement("img");
         this.imgTag.setAttribute("class", "video-mjpeg");
 
         // rotation option
         this.rotation = 0;
         if (typeof (properties) != "undefined" && typeof (properties.rotation) != "undefined") {
             this.rotation = properties.rotation * Math.PI / 180;
-            this.canvas = this.currentDoc.createElement('canvas');
+            this.canvas = document.createElement('canvas');
             this.canvas.width = 640;
             this.canvas.height = 480;
             var ctx = this.canvas.getContext('2d');
             ctx.translate(0, 480);
             ctx.rotate(this.rotation);
-            this.currentDoc.getElementById(this.divId).appendChild(this.canvas);
+            document.getElementById(this.divId).appendChild(this.canvas);
         } else {
             // appends <img> tag to <div>
-            this.currentDoc.getElementById(this.divId).appendChild(this.imgTag);
+            document.getElementById(this.divId).appendChild(this.imgTag);
         }
     }
 
@@ -109,9 +107,9 @@ class MjpegView extends View {
 
     selectDataView(dataSourceIds, entityId) {
         if (dataSourceIds.indexOf(this.dataSourceId) > -1 || (isDefined(this.entity)) && this.entity.getId() === entityId) {
-            this.currentDoc.getElementById(this.divId).setAttribute("class", this.css + " " + this.cssSelected);
+            document.getElementById(this.divId).setAttribute("class", this.css + " " + this.cssSelected);
         } else {
-            this.currentDoc.getElementById(this.divId).setAttribute("class", this.css);
+            document.getElementById(this.divId).setAttribute("class", this.css);
         }
     }
 

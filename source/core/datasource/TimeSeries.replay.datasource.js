@@ -132,7 +132,7 @@ class TimeSeriesReplayDatasource extends DataSource {
     }
 
     /**
-     * Sets the start time
+     * Sets the start boundary as an epoch timestamp in milliseconds.
      */
     setStartTimestamp(timestamp) {
         this.properties.startTimestamp = timestamp;
@@ -140,7 +140,7 @@ class TimeSeriesReplayDatasource extends DataSource {
     }
 
     /**
-     * Sets the end time
+     * Sets the end boundary as an epoch timestamp in milliseconds.
      */
     setEndTimestamp(timestamp) {
         this.properties.endTimestamp = timestamp;
@@ -148,14 +148,14 @@ class TimeSeriesReplayDatasource extends DataSource {
     }
 
     /**
-     * Sets the start time
+     * Sets the start boundary from a date-like value (for example, an ISO string or Date).
      */
     setStartTime(time) {
         this.setStartTimestamp(new Date(time).getTime());
     }
 
     /**
-     * Sets the end time
+     * Sets the end boundary from a date-like value (for example, an ISO string or Date).
      */
     setEndTime(time) {
         this.setEndTimestamp(new Date(time).getTime());
