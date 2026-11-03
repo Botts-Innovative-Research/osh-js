@@ -127,9 +127,9 @@ class ConnectedSystemsApi {
     async fetchAsJson(apiUrl, queryString) {
         const fullUrl = this.baseUrl() +  apiUrl + '?' +queryString;
 
-        const headers = this.getHeaders();
+        const headers = await this.getHeaders();
 
-        const response =  fetch(fullUrl, {
+        const response =  await fetch(fullUrl, {
                 method: 'GET',
                 credentials: 'include',
                 headers: headers
@@ -146,12 +146,12 @@ class ConnectedSystemsApi {
     async postAsJson(apiUrl, jsonPayload) {
         const fullUrl = this.baseUrl() +  apiUrl;
 
-        const headers = this.getHeaders();
+        const headers = await this.getHeaders();
 
         headers['Accept'] = 'application/json';
         headers['Content-Type'] = 'application/json';
 
-        const response = fetch(fullUrl, {
+        const response = await fetch(fullUrl, {
             method: 'POST',
             headers: headers,
             credentials: 'include',
