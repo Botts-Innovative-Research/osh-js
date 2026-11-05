@@ -10,7 +10,6 @@
  ******************************* END LICENSE BLOCK ***************************/
 
 import {assertDefined, isDefined, isWebWorker, randomUUID} from "../../../utils/Utils.js";
-import DecodeWorker from './workers/ffmpeg.decode.video.worker.js';
 import '../../../resources/css/ffmpegview.css';
 import YUVCanvas from "./YUVCanvas";
 import CanvasView from "./CanvasView";
@@ -151,7 +150,10 @@ class FFMPEGView extends CanvasView {
      * @private
      */
     initFFMPEG_DECODER_WORKER(codec) {
-        this.decodeWorker = new DecodeWorker();
+        this.decodeWorker = new Worker(
+            new URL('./workers/ffmpeg.decode.video.worker.js', import.meta.url),
+            {type: 'module'}
+        );
         // const drawWorker = new DrawWorker();
         this.decodeWorker.id = randomUUID();
 
