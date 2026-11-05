@@ -14,8 +14,10 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-import mqtt from './mqtt.min.js';
+import './mqtt.min.js';
 import {isDefined} from "../utils/Utils.js";
+
+const mqtt = globalThis.mqtt;
 
 class MqttProvider {
     /**
